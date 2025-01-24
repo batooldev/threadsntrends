@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, Sparkles, Workflow, Users } from 'lucide-react';
+
 
 const AboutUs = () => {
   const projects = [
