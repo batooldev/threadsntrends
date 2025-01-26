@@ -1,26 +1,27 @@
 import React from 'react';
+import Link from "next/link"; 
 
 
 const AboutUs = () => {
   const projects = [
     
-    { number: '45+', label: 'Design Awards' },
-    { number: '12+', label: 'Years Experience' },
-    { number: '98%', label: 'Client Satisfaction' }
+    { number: '500+', label: 'unique Designs' },
+    { number: '12+', label: 'Years of Expertise' },
+    { number: '95%', label: 'Client Satisfaction' }
   ];
 
   const services = [
     {
-      title: 'Brand Identity',
-      description: 'Crafting unique visual languages that speak to your audience'
+      title: 'Custom Tailoring',
+      description: 'Expert tailoring services to craft outfits that fit you perfectly and reflect your style.'
     },
     {
-      title: 'Digital Design',
-      description: 'Creating seamless digital experiences that inspire and engage'
+      title: 'Exclusive Collections',
+      description: 'Discover handpicked, exclusive collections designed for elegance and individuality.'
     },
     {
-      title: 'Art Direction',
-      description: 'Guiding creative vision to tell compelling visual stories'
+      title: 'Personal Styling',
+      description: 'Our styling experts help you create the perfect look for every occasion.'
     }
   ];
 
@@ -31,12 +32,11 @@ const AboutUs = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
           <div className="max-w-3xl">
             <h1 className="text-6xl font-light mb-8 tracking-tight">
-              We craft beautiful
-              <span className="block font-normal text-[#D19E61]">digital experiences</span>
+            Style Redefined
+              <span className="block font-normal text-[#D19E61]">for Every Occasion</span>
             </h1>
             <p className="text-xl text-neutral-600 leading-relaxed">
-              A boutique design studio focused on creating meaningful and memorable brand experiences. 
-              We believe in the power of minimalist design to tell compelling stories.
+             Welcome to Threads N Trends, where fashion meets craftsmanship. We specialize in creating elegant, timeless, and bespoke clothing that celebrates individuality.
             </p>
           </div>
         </div>
@@ -64,19 +64,25 @@ const AboutUs = () => {
             <div>
               <h2 className="text-4xl font-light mb-8">Our Design Philosophy</h2>
               <p className="text-neutral-600 leading-relaxed mb-6">
-                We believe that exceptional design lies in the perfect balance of form and function. 
-                Every pixel, every interaction, and every element serves a purpose in telling your brand's story.
+                At Threads N Trends, we believe that clothing is more than fabric—it's a form of self-expression. Our goal is to bring your vision to life with precision and creativity.
               </p>
               <p className="text-neutral-600 leading-relaxed">
-                Our approach combines minimalist aesthetics with innovative solutions, 
-                creating designs that not only look beautiful but deliver meaningful results.
+                 Combining tradition with modernity, our designs are crafted to make every moment special, blending elegance with comfort.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="h-64 bg-[#F2E8DF] rounded-lg" />
-              <div className="h-64 bg-[#E4D5C3] rounded-lg mt-8" />
-              <div className="h-64 bg-[#D19E61] rounded-lg -mt-8" />
-              <div className="h-64 bg-[#A67B5B] rounded-lg" />
+            <div className="h-[60vh] bg-[#F2E8DF] rounded-lg ">
+                <img src="/images/p14.webp" alt="Philosophy Image 1" className="w-full h-[60vh] object-cover rounded-lg" />
+              </div>
+              <div className="h-[60vh] bg-[#E4D5C3] rounded-lg  ">
+                <img src="/images/p15.webp" alt="Philosophy Image 2" className="w-full h-[60vh] object-cover rounded-lg" />
+              </div>
+              <div className="h-[60vh] bg-[#D19E61] rounded-lg ">
+                <img src="/images/p13.jpg" alt="Philosophy Image 3" className="w-full h-[60vh] object-cover rounded-lg" />
+              </div>
+              <div className="h-[60vh] bg-[#A67B5B] rounded-lg">
+                <img src="/images/p12.webp" alt="Philosophy Image 4" className="w-full h-[60vh] object-cover rounded-lg" />
+              </div>
             </div>
           </div>
         </div>
@@ -85,7 +91,7 @@ const AboutUs = () => {
       {/* Services Section */}
       <div className="bg-white py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-light text-center mb-16">Our Expertise</h2>
+          <h2 className="text-4xl font-light text-center mb-16">Our services</h2>
           <div className="grid md:grid-cols-3 gap-12">
             {services.map((service, index) => (
               <div key={index} className="group hover:bg-[#F2E8DF] p-8 rounded-lg transition-all duration-300">
@@ -106,13 +112,15 @@ const AboutUs = () => {
       {/* Contact Section */}
       <div className="py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-light mb-8">Let's Create Together</h2>
+          <h2 className="text-4xl font-light mb-8">Let’s Style You</h2>
           <p className="text-xl text-neutral-600 mb-12 max-w-2xl mx-auto">
-            We're always excited to collaborate with forward-thinking brands and ambitious clients.
+             Whether it’s a wedding, a party, or everyday elegance, we’re here to create outfits that make you shine.
           </p>
+          <Link href="ContactUs">
           <button className="bg-[#D19E61] text-white px-8 py-4 rounded-lg hover:bg-[#A67B5B] transition-colors duration-300">
-            Start a Project
+              Contact Us
           </button>
+          </Link>
         </div>
       </div>
     </div>
