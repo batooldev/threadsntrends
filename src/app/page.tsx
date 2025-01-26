@@ -18,7 +18,7 @@ export default function AboutUs() {
               individuality and timeless beauty.
             </p>
             <Link href="Product">
-            <button className="bg-[#D19E61] hover:bg-[#A67B5B] text-white px-6 py-3 rounded-lg shadow-md">
+            <button className="bg-[#D19E61] hover:bg-[#A67B5B] text-white px-6 py-3 rounded-lg shadow-md mt-2">
               Shop Now
             </button>
             </Link>
