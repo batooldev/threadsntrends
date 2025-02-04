@@ -22,13 +22,13 @@ export default function AboutUs() {
             </button>
             </Link>
           </div>
-          <div className='relative w-full h-full'>
+          <div className='relative w-full max-w-[1200px] h-full overflow-hidden'>
             <img
               src="/images/download (9).jfif" // Update with actual path
               alt="Tailored Display"
               // width={500}
               // height={500}
-              className="rounded-lg shadow-lg h-[800px] w-full "
+              className="rounded-lg shadow-lg h-[900px] w-full "
             />
           </div>
         </div>

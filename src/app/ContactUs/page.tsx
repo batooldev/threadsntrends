@@ -32,10 +32,11 @@ const ContactUs = () => {
   const isFormFilled = !!(formData.name && formData.email && formData.subject && formData.message);
 
   return (
-    <div className="bg-[#f2f1ed] min-h-screen p-6">
+    <div className="bg-[#F5F0EA] min-h-screen p-6">
 
        <div className="max-w-6xl mx-auto">
         {/* Title Section */}
+        
         <div className="relative  bg-gradient-to-r from-[#f5e3c6] to-[#e0b98d]  mb-10">
          <img 
          src="/images/contactus_background_custom.png" 
@@ -51,7 +52,9 @@ const ContactUs = () => {
     </div>
     </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-10 ">
+         
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-10 mt-10">
           {/* Contact Information Section */}
 
           <div className="space-y-6">
