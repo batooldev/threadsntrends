@@ -59,11 +59,16 @@ export default function ProductPage() {
   const ProductGrid = ({ products }: { products: Product[] }) => (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {products.map(product => (
+
+        <div>
         <Link href={`/view_product/${product.id}`} key={product.id}>
           <div className="bg-white p-4 shadow rounded-lg">
             <img src={product.image} alt={product.name} className="w-full h-[50vh] object-cover mb-2 rounded" />
             <h3 className="font-bold text-lg">{product.name}</h3>
             <p className="text-gray-600">{product.price}</p>
+            </div>
+            </Link>
+
             <button 
               onClick={(e) => {
                 e.preventDefault();
@@ -73,8 +78,8 @@ export default function ProductPage() {
             >
               Add to Cart
             </button>
-          </div>
-        </Link>
+      
+        </div>
       ))}
     </div>
   );
