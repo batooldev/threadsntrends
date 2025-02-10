@@ -9,6 +9,7 @@ export default function AboutUs() {
 
     {/* Intro Section */}
     <section className="pl-6 md:pl-16 lg:pl-32">
+
         <div className="flex flex-row items-center max-md:flex-col gap-8 w-full">
           <div className="space-y-6 max-w-[18rem] py-16">
             <h2 className="text-3xl font-extrabold text-gray-900">Shop New Arrivals</h2>
@@ -22,6 +23,7 @@ export default function AboutUs() {
             </button>
             </Link>
           </div>
+          
           <div className='relative w-full max-w-[1200px] h-full overflow-hidden'>
             <img
               src="/images/download (9).jfif" // Update with actual path

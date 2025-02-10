@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { CiSearch, CiShoppingCart} from "react-icons/ci";
 import { CiDeliveryTruck } from "react-icons/ci";
+import { FiUser } from "react-icons/fi";
 
 
 const Header = () => {
@@ -71,13 +72,26 @@ const Header = () => {
           </Link>
           </div>
           
-          {/* shoping cart */}
+          {/* shoping cart icon*/}
           <div>
+            <Link href="/cart" className="relative">
           <CiShoppingCart
             className="icon"
             style={{ fontSize: "1.5rem" }}  
             
           />
+          </Link>
+          </div>
+
+          {/*login icon */}
+          <div>
+            <Link href="/login" className="relative">
+            <FiUser 
+            className="icon"
+            style={{ fontSize: "1.5rem"}}
+            />
+            
+            </Link>
           </div>
 
         </div>
