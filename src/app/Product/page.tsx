@@ -85,7 +85,7 @@ export default function ProductPage() {
   );
 
   return (
-    <div className="flex bg-[#F5F0EA]">
+    <div className="flex bg-rosy_pink">
       <aside className="w-1/4">
         <CategorySidebar onCategorySelect={handleCategorySelect} />
       </aside>

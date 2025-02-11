@@ -32,7 +32,7 @@ const ContactUs = () => {
   const isFormFilled = !!(formData.name && formData.email && formData.subject && formData.message);
 
   return (
-    <div className="bg-[#F5F0EA] min-h-screen p-6">
+    <div className="bg-rosy_pink min-h-screen p-6">
 
        <div className="max-w-6xl mx-auto">
         {/* Title Section */}

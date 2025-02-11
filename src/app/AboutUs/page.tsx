@@ -26,7 +26,7 @@ const AboutUs = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8F4F0]">
+    <div className="min-h-screen bg-rosy_pink">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
@@ -58,7 +58,7 @@ const AboutUs = () => {
       </div>
 
       {/* Philosophy Section */}
-      <div className="py-24">
+      <div className="bg-rosy_pink py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div>
@@ -71,16 +71,16 @@ const AboutUs = () => {
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
-            <div className="h-[60vh] bg-[#F2E8DF] rounded-lg ">
+            <div className="h-[60vh]  rounded-lg ">
                 <img src="/images/p14.webp" alt="Philosophy Image 1" className="w-full h-[60vh] object-cover rounded-lg" />
               </div>
-              <div className="h-[60vh] bg-[#E4D5C3] rounded-lg  ">
+              <div className="h-[60vh]  rounded-lg  ">
                 <img src="/images/p15.webp" alt="Philosophy Image 2" className="w-full h-[60vh] object-cover rounded-lg" />
               </div>
-              <div className="h-[60vh] bg-[#D19E61] rounded-lg ">
+              <div className="h-[60vh]  rounded-lg ">
                 <img src="/images/p13.jpg" alt="Philosophy Image 3" className="w-full h-[60vh] object-cover rounded-lg" />
               </div>
-              <div className="h-[60vh] bg-[#A67B5B] rounded-lg">
+              <div className="h-[60vh]  rounded-lg">
                 <img src="/images/p12.webp" alt="Philosophy Image 4" className="w-full h-[60vh] object-cover rounded-lg" />
               </div>
             </div>
@@ -110,7 +110,7 @@ const AboutUs = () => {
       
 
       {/* Contact Section */}
-      <div className="py-24">
+      <div className=" bg-rosy_pink py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-light mb-8">Let’s Style You</h2>
           <p className="text-xl text-neutral-600 mb-12 max-w-2xl mx-auto">

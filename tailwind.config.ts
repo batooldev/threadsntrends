@@ -14,6 +14,7 @@ const config: Config = {
   			foreground: 'hsl(var(--foreground))',
   			cld: '#ff12',
   			solid_brown: '#bb9e8e',
+			rosy_pink:'#F5F0EA',
   			card: {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'

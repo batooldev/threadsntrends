@@ -4,7 +4,7 @@ import Link from 'next/link';
 export default function AboutUs() {
   return (
 
-    <div className="min-h-screen bg-[#F5F0EA] text-gray-800">
+    <div className="min-h-screen bg-rosy_pink text-gray-800">
       
 
     {/* Intro Section */}
@@ -87,7 +87,7 @@ export default function AboutUs() {
 
 
       {/* Instagram / Featured Picks */}
-      <section className="py-16 px-6 md:px-16 lg:px-32 bg-[#FAF8F5]">
+      <section className="py-16 px-6 md:px-16 lg:px-32 bg-rosy_pink">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className='space-y-6 max-w-[20rem] py-16 text-center'>
             <h2 className="text-3xl font-bold mb-6">As Seen on Instagram</h2>

@@ -15,7 +15,7 @@ const TrackOrder = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5]">
+    <div className="min-h-screen flex items-center justify-center bg-rosy_pink">
       <div className="bg-white p-8 rounded shadow max-w-lg w-full">
         <h1 className="text-3xl font-bold mb-6 text-center text-[#b8915c]">Track Your Order</h1>
         <form onSubmit={handleSubmit}>

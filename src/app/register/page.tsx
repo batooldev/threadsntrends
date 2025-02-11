@@ -1,5 +1,6 @@
 'use client';
 
+import Link from "next/link";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -14,7 +15,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
-    username: '',
+    name: '',
     email: '',
     password: '',
   });
@@ -73,13 +74,13 @@ export default function RegisterPage() {
               </Alert>
             )} */}
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="name">Name</Label>
               <Input
-                id="username"
-                name="username"
+                id="name"
+                name="name"
                 type="text"
                 required
-                value={formData.username}
+                value={formData.name}
                 onChange={handleChange}
                 className="w-full"
               />
@@ -110,7 +111,7 @@ export default function RegisterPage() {
               />
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className='flex flex-col gap-2'>
             <Button 
               type="submit" 
               className="w-full"
@@ -119,6 +120,17 @@ export default function RegisterPage() {
               {loading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
               Register
             </Button>
+            <Link href='/login'className="w-full">
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={loading}
+            >
+              {loading && <Loader className="mr-2 h-4 w-4 animate-spin " />}
+              Login
+            </Button>
+            </Link>
+
           </CardFooter>
         </form>
       </Card>

@@ -16,7 +16,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: '',
   });
 
@@ -78,16 +78,16 @@ export default function LoginPage() {
             )}
             
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="email">Email</Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                 <Input
-                  id="username"
-                  name="username"
+                  id="email"
+                  name="email"
                   type="text"
                   required
-                  placeholder="Enter your username"
-                  value={formData.username}
+                  placeholder="Enter your email"
+                  value={formData.email}
                   onChange={handleChange}
                   className="pl-10 w-full"
                 />
