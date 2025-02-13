@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState , useEffect } from 'react';
 import CategorySidebar from '@/components/categorysidebar/categorysidebar';
 import Link from 'next/link';
 
@@ -17,17 +17,26 @@ interface Product {
 export default function ProductPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedCollection, setSelectedCollection] = useState<string>('');
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data.products)) {
+          setProducts(data.products);
+        } else {
+          console.error("API response is not an array:", data);
+          setProducts([]); // Ensure it's an array
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching products:", error);
+        setProducts([]); // Fallback to an empty array
+      });
+  }, []);
   
-  const products: Product[] = [
-    { id: 1, category: 'winter-women', name: 'Blue Dress', price: '$50', image: '/images/p5.webp', gender: 'WOMEN', collection: 'Winter Collection' },
-    { id: 2, name: 'Red Shirt', price: '$30', image: '/images/p8.webp', gender: 'MEN', collection: 'Summer Collection' },
-    { id: 3, name: 'White Blouse', price: '$40', image: '/images/p9.jpg', gender: 'WOMEN', collection: 'Winter Collection' },
-    { id: 4, name: 'Black Jacket', price: '$70', image: '/images/p10.jpg', gender: 'MEN', collection: 'Winter Collection' },
-    { id: 5, name: 'Formal Suit', price: '$120', image: '/images/p6.webp', gender: 'MEN', collection: 'Winter Collection' },
-    { id: 6, name: 'Casual Trousers', price: '$45', image: '/images/p7.webp', gender: 'MEN', collection: 'Summer Collection' },
-    { id: 7, name: 'Summer Hat', price: '$20', image: '/images/p11.jpg', gender: 'WOMEN', collection: 'Summer Collection' },
-    { id: 8, name: 'Sneakers', price: '$65', image: '/images/p12.webp', gender: 'MEN', collection: 'Summer Collection' }
-  ];
+ 
 
   const handleCategorySelect = (gender: string, collection?: string) => {
     setSelectedCategory(gender);
@@ -54,7 +63,7 @@ export default function ProductPage() {
     alert(`Added ${product.name} to cart!`);
   };
 
-  const filteredProducts = filterProducts(products);
+ const filteredProducts = filterProducts(products); 
 
   const ProductGrid = ({ products }: { products: Product[] }) => (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -83,6 +92,10 @@ export default function ProductPage() {
       ))}
     </div>
   );
+
+
+  
+
 
   return (
     <div className="flex bg-rosy_pink">
@@ -129,7 +142,9 @@ export default function ProductPage() {
             )}
           </section>
         )}
+          
       </main>
     </div>
   );
 }
+
