@@ -104,11 +104,11 @@ export default function ProductPage() {
       </aside>
       <main className="w-3/4 p-6">
         {/* Hero Image Section */}
-        <div className="relative w-full rounded-lg overflow-hidden mb-6 ">
+        <div className="relative w-full h-[600px] rounded-lg overflow-hidden mb-6 ">
           <img 
-            src="/images/AB.jpeg" 
+            src="/images/pro.jpg" 
             alt="Hero Image" 
-            className="w-full h-auto object-cover min-h-[40vh] max-h-[60vh]"
+            className="w-full h-auto object-cover "
           />
         </div>
 
