@@ -1,5 +1,5 @@
 "use client";
-
+import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Trash, Minus, Plus, ShoppingCart } from "lucide-react";
@@ -66,7 +66,9 @@ const Cart = () => {
             ))}
             <div className="flex justify-between items-center mt-4">
               <h3 className="text-lg font-bold">Total: ${totalPrice}</h3>
-              <Button variant="default">Proceed to Checkout</Button>
+            <Link href="/checkout">
+            <Button variant="default">Proceed to Checkout</Button>
+            </Link>
             </div>
           </div>
         )}

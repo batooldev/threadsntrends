@@ -1,4 +1,6 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+// C:\threadsntrends\src\app\api\orders\route.ts
+import mongoose from 'mongoose';
+import { NextRequest, NextResponse } from 'next/server';  // Use `NextRequest` and `NextResponse`
 import dbConnect from '@/lib/db';
 import Order from '@/lib/orders';
 
@@ -10,131 +12,123 @@ type ResponseData = {
 };
 
 // Helper function to handle errors
-const handleError = (res: NextApiResponse<ResponseData>, error: any) => {
+const handleError = (error: any) => {
   console.error('API Error:', error);
   const message = error instanceof Error ? error.message : 'An unknown error occurred';
-  return res.status(500).json({ success: false, error: message });
+  return { success: false, error: message };
 };
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<ResponseData>
-) {
-  const { method } = req;
-  
-  // Connect to database
-  await dbConnect();
+// POST - Create a new order
+export const POST = async (req: NextRequest) => {
+  await dbConnect();  // Connect to the database
   
   try {
-    switch (method) {
-      // GET - Fetch all orders or a specific order
-      case 'GET': {
-        const { id } = req.query;
-        
-        if (id) {
-          // Fetch specific order
-          const order = await Order.findById(id);
-          
-          if (!order) {
-            return res.status(404).json({ success: false, error: 'Order not found' });
-          }
-          
-          return res.status(200).json({ success: true, data: order });
-        } else {
-          // Fetch all orders with optional filtering
-          const { status, customerEmail } = req.query;
-          const filter: any = {};
-          
-          if (status) filter.status = status;
-          if (customerEmail) filter.customerEmail = customerEmail;
-          
-          const orders = await Order.find(filter).sort({ createdAt: -1 });
-          return res.status(200).json({ success: true, data: orders });
-        }
+    // Parse the request body (req.json())
+    const body = await req.json();
+    const { products } = body;
+
+    if (!products || !Array.isArray(products)) {
+      return NextResponse.json({ success: false, error: 'Products array is required' }, { status: 400 });
+    }
+
+    // Calculate total amount from products array for validation
+    const calculatedTotal = products.reduce(
+      (sum, item) => sum + (item.price * item.quantity), 0
+    );
+
+    // Check if provided total matches calculated total
+    if (Math.abs(calculatedTotal - body.totalAmount) > 0.01) {
+      return NextResponse.json({
+        success: false,
+        error: 'Total amount does not match the sum of product prices'
+      }, { status: 400 });
+    }
+
+    // Create a new order
+    const order = await Order.create(body);
+    return NextResponse.json({ success: true, data: order }, { status: 201 });
+  } catch (error) {
+    const response = handleError(error);
+    return NextResponse.json(response, { status: 500 });
+  }
+};
+
+// GET - Fetch all orders or a specific order
+export const GET = async (req: NextRequest) => {
+  await dbConnect();  // Connect to the database
+  
+  try {
+    // Use new URL(req.url) to parse searchParams
+    const url = new URL(req.url);
+    const id = url.searchParams.get('id');  // Extract 'id' from the query parameters
+
+    if (id) {
+      // Fetch specific order by id
+      const order = await Order.findOne({ orderID: id });
+      if (!order) {
+        return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
       }
-      
-      // POST - Create a new order
-      case 'POST': {
-        // Calculate total amount from products array for validation
-        const { products } = req.body;
-        if (products && Array.isArray(products)) {
-          const calculatedTotal = products.reduce(
-            (sum, item) => sum + (item.price * item.quantity), 0
-          );
-          
-          // Check if provided total matches calculated total
-          if (Math.abs(calculatedTotal - req.body.totalAmount) > 0.01) {
-            return res.status(400).json({
-              success: false,
-              error: 'Total amount does not match the sum of product prices'
-            });
-          }
-        }
-        
-        const order = await Order.create(req.body);
-        return res.status(201).json({ success: true, data: order });
-      }
-      
-      // PUT - Update an existing order
-      case 'PUT': {
-        const { id } = req.query;
-        
-        if (!id) {
-          return res.status(400).json({ success: false, error: 'Order ID is required' });
-        }
-        
-        // Calculate total if products are being updated
-        if (req.body.products) {
-          const calculatedTotal = req.body.products.reduce(
-            (sum: number, item: any) => sum + (item.price * item.quantity), 0
-          );
-          
-          if (req.body.totalAmount && Math.abs(calculatedTotal - req.body.totalAmount) > 0.01) {
-            return res.status(400).json({
-              success: false,
-              error: 'Total amount does not match the sum of product prices'
-            });
-          }
-          
-          // Auto update the total amount
-          req.body.totalAmount = calculatedTotal;
-        }
-        
-        const order = await Order.findByIdAndUpdate(id, req.body, {
-          new: true,
-          runValidators: true
-        });
-        
-        if (!order) {
-          return res.status(404).json({ success: false, error: 'Order not found' });
-        }
-        
-        return res.status(200).json({ success: true, data: order });
-      }
-      
-      // DELETE - Remove an order
-      case 'DELETE': {
-        const { id } = req.query;
-        
-        if (!id) {
-          return res.status(400).json({ success: false, error: 'Order ID is required' });
-        }
-        
-        const deletedOrder = await Order.findByIdAndDelete(id);
-        
-        if (!deletedOrder) {
-          return res.status(404).json({ success: false, error: 'Order not found' });
-        }
-        
-        return res.status(200).json({ success: true, data: {} });
-      }
-      
-      // Handle unsupported methods
-      default:
-        res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
-        return res.status(405).json({ success: false, error: `Method ${method} Not Allowed` });
+      return NextResponse.json({ success: true, data: order }, { status: 200 });
+    } else {
+      // Fetch all orders
+      const orders = await Order.find({}).sort({ createdAt: -1 });
+      return NextResponse.json({ success: true, data: orders }, { status: 200 });
     }
   } catch (error) {
-    return handleError(res, error);
+    const response = handleError(error);
+    return NextResponse.json(response, { status: 500 });
   }
-}
+};
+
+
+// PUT - Update an existing order
+export const PUT = async (req: NextRequest) => {
+  await dbConnect();
+  try {
+    const url = new URL(req.url);
+    const id = url.searchParams.get('id');
+
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ success: false, error: 'Invalid Order ID' }, { status: 400 });
+    }
+
+    const body = await req.json();
+    if (body.products && Array.isArray(body.products)) {
+      const calculatedTotal = body.products.reduce(
+        (sum: number, item: any) => sum + item.price * item.quantity, 0
+      );
+      body.totalAmount = calculatedTotal;
+    }
+
+    const order = await Order.findByIdAndUpdate(id, body, { new: true, runValidators: true });
+    if (!order) {
+      return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, data: order }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(handleError(error), { status: 500 });
+  }
+};
+
+// DELETE - Remove an order
+export const DELETE = async (req: NextRequest) => {
+  await dbConnect();
+  try {
+    const url = new URL(req.url);
+    const id = url.searchParams.get('id');
+
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ success: false, error: 'Invalid Order ID' }, { status: 400 });
+    }
+
+    const deletedOrder = await Order.findByIdAndDelete(id);
+    if (!deletedOrder) {
+      return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, data: {} }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(handleError(error), { status: 500 });
+  }
+};
