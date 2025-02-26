@@ -1,150 +1,175 @@
 "use client";
 
-import { useState , useEffect } from 'react';
-import CategorySidebar from '@/components/categorysidebar/categorysidebar';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import CategorySidebar from "@/components/categorysidebar/categorysidebar";
+import Link from "next/link";
+import Image from "next/image";
+import { Loader2 } from "lucide-react";
 
 interface Product {
-  id: number;
+  productID: string;
   name: string;
-  price: string;
-  image: string;
-  category?: string;
-  collection?: string;
-  gender?: 'MEN' | 'WOMEN';
+  price: number;
+  description: string;
+  category: string;
+  stock: number;
+  isFeatured: boolean;
+  images: string[]; // ✅ Fix: Ensure images is an array of strings (URLs)
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default function ProductPage() {
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedCollection, setSelectedCollection] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [newArrivals, setNewArrivals] = useState<Product[]>([]);
 
   useEffect(() => {
-    fetch("/api/products")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data.products)) {
-          setProducts(data.products);
-        } else {
-          console.error("API response is not an array:", data);
-          setProducts([]); // Ensure it's an array
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching products:", error);
-        setProducts([]); // Fallback to an empty array
-      });
+    fetchProducts();
   }, []);
-  
- 
 
-  const handleCategorySelect = (gender: string, collection?: string) => {
-    setSelectedCategory(gender);
-    if (collection) {
-      setSelectedCollection(collection);
-    } else {
-      setSelectedCollection('');
+  const fetchProducts = async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch("/api/products");
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || "Failed to fetch products");
+
+      if (Array.isArray(data.products)) {
+        const allProducts: Product[] = data.products as Product[];
+        setProducts(allProducts);
+        
+        setFeaturedProducts(allProducts.filter((p: Product) => p.isFeatured));
+        
+        setNewArrivals([...allProducts].sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        ).slice(0, 4));
+      } else {
+        throw new Error("Invalid API response format");
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setError(error instanceof Error ? error.message : "Failed to fetch products");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const filterProducts = (products: Product[]) => {
-    return products.filter(product => {
-      if (!selectedCategory && !selectedCollection) return true;
-      
-      if (selectedCollection) {
-        return product.gender === selectedCategory && product.collection === selectedCollection;
-      }
-      
-      return product.gender === selectedCategory;
-    });
-  };
+  const handleCategorySelect = (category: string) => setSelectedCategory(category);
 
-  const handleAddToCart = (product: Product) => {
-    alert(`Added ${product.name} to cart!`);
-  };
+  const filterProducts = (products: Product[]) =>
+    selectedCategory ? products.filter((p) => p.category === selectedCategory) : products;
 
- const filteredProducts = filterProducts(products); 
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(price);
+
+  const ProductCard = ({ product }: { product: Product }) => (
+    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-[1.02]">
+      <Link href={`/products/${product.productID}`} className="block">
+        <div className="relative w-full h-[300px]">
+          {product.images.length > 0 ? (
+            <Image
+              src={product.images[0]} 
+              alt={product.name}
+              fill
+              className="object-cover"
+              priority={false}
+              quality={75}
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+              <span className="text-gray-400">No image available</span>
+            </div>
+          )}
+          {product.isFeatured && (
+            <span className="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-sm">
+              Featured
+            </span>
+          )}
+          {product.stock <= 0 && (
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <span className="text-white font-bold">Out of Stock</span>
+            </div>
+          )}
+        </div>
+        <div className="p-4">
+          <h3 className="font-bold text-lg text-gray-800 mb-2">{product.name}</h3>
+          <p className="text-gray-600 mb-2">{formatPrice(product.price)}</p>
+          <p className="text-sm text-gray-500 mb-2">
+            {product.description.length > 100 ? `${product.description.substring(0, 100)}...` : product.description}
+          </p>
+          <div className="flex justify-between items-center">
+            <span className={`text-sm ${product.stock > 0 ? "text-green-600" : "text-red-600"}`}>
+              {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
+            </span>
+            <span className="text-sm text-gray-500">{product.category}</span>
+          </div>
+        </div>
+      </Link>
+    </div>
+  );
 
   const ProductGrid = ({ products }: { products: Product[] }) => (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {products.map(product => (
-
-        <div>
-        <Link href={`/view_product/${product.id}`} key={product.id}>
-          <div className="bg-white p-4 shadow rounded-lg">
-            <img src={product.image} alt={product.name} className="w-full h-[50vh] object-cover mb-2 rounded" />
-            <h3 className="font-bold text-lg">{product.name}</h3>
-            <p className="text-gray-600">{product.price}</p>
-            </div>
-            </Link>
-
-            <button 
-              onClick={(e) => {
-                e.preventDefault();
-                handleAddToCart(product);
-              }}
-              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-              Add to Cart
-            </button>
-      
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {products.map((product) => (
+        <ProductCard key={product.productID} product={product} />
       ))}
     </div>
   );
 
-
-  
-
-
   return (
-    <div className="flex bg-rosy_pink">
-      <aside className="w-1/4">
+    <div className="flex bg-gray-50 min-h-screen">
+      <aside className="w-64 border-r bg-white">
         <CategorySidebar onCategorySelect={handleCategorySelect} />
       </aside>
-      <main className="w-3/4 p-6">
-        {/* Hero Image Section */}
-        <div className="relative w-full h-[600px] rounded-lg overflow-hidden mb-6 ">
-          <img 
-            src="/images/pro.jpg" 
-            alt="Hero Image" 
-            className="w-full h-auto object-cover "
-          />
-        </div>
 
-        {/* Product Sections */}
-        {!selectedCategory ? (
+      <main className="flex-1 p-6">
+        {!selectedCategory && (
+          <div className="relative w-full h-[400px] rounded-lg overflow-hidden mb-8">
+            <Image src="/images/pro.jpg" alt="Hero Banner" fill className="object-cover" priority />
+          </div>
+        )}
+
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+          </div>
+        ) : error ? (
+          <div className="text-red-500 text-center p-4 bg-red-50 rounded-lg">{error}</div>
+        ) : !selectedCategory ? (
           <>
-            <section className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">New Arrival Products</h2>
-              <ProductGrid products={products.slice(0, 4)} />
-            </section>
+            {featuredProducts.length > 0 && (
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6">Featured Products</h2>
+                <ProductGrid products={featuredProducts} />
+              </section>
+            )}
 
-            <section className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">Popular Products</h2>
-              <ProductGrid products={products} />
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">New Arrivals</h2>
+              <ProductGrid products={newArrivals} />
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold mb-4">Trending Products</h2>
-              <ProductGrid products={products.slice(4)} />
+              <h2 className="text-2xl font-bold mb-6">All Products</h2>
+              <ProductGrid products={products} />
             </section>
           </>
         ) : (
           <section>
-            <h2 className="text-2xl font-bold mb-4">
-              {selectedCategory} {selectedCollection ? `- ${selectedCollection}` : ''}
-            </h2>
-            {filteredProducts.length > 0 ? (
-              <ProductGrid products={filteredProducts} />
+            <h2 className="text-2xl font-bold mb-6">{selectedCategory}</h2>
+            {filterProducts(products).length > 0 ? (
+              <ProductGrid products={filterProducts(products)} />
             ) : (
-              <p className="text-gray-600">No products found in this category.</p>
+              <p className="text-gray-600 text-center p-8">No products found in this category.</p>
             )}
           </section>
         )}
-          
       </main>
     </div>
   );
 }
-

@@ -25,6 +25,7 @@ export default function RegisterPage() {
     setLoading(true);
     setError('');
 
+    console.log('Submitting form:', formData);
     try {
       const res = await fetch('/api/register', {
         method: 'POST',
@@ -34,7 +35,10 @@ export default function RegisterPage() {
         body: JSON.stringify(formData),
       });
 
+      console.log('API Response:', res)
       const data = await res.json();
+      
+      console.log('Response Data:', data)
 
       if (!res.ok) {
         throw new Error(data.error || 'Registration failed');
