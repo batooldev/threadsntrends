@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 
+
 export default function AdminSidebar() {
+
   return (
     <aside className="w-64 bg-[#D6C4B2] text-gray-800 p-6 mt-6 mb-6">
       <h2 className="text-2xl font-bold mb-8">Admin Dashboard</h2>
@@ -24,8 +26,8 @@ export default function AdminSidebar() {
             </Link>
           </li>
           <li>
-            <Link href="/admin/users">
-              <div className="">Users</div>
+            <Link href="/admin/contact">
+              <div className="">Contact</div>
             </Link>
           </li>
         </ul>
@@ -33,3 +35,4 @@ export default function AdminSidebar() {
     </aside>
   );
 }
+
