@@ -2,14 +2,46 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Product from '@/lib/product';
-//import { auth } from '@/lib/auth'; // Assuming you have authentication middleware
+import { v2 as cloudinary } from 'cloudinary';
+import { Readable } from 'stream';
+import { buffer } from 'micro';
+//import { auth } from '@/lib/auth';
 
-// GET all products or query products
+
+cloudinary.config({
+  cloud_name:"do9w0lwh2",
+  api_key: "726923492364645",
+  api_secret: "oLnfYutUR5lUrhQ0MVJ6fwj3Pa0"
+});
+
+
+async function uploadToCloudinary(base64Image: string) {
+  try {
+    const result = await cloudinary.uploader.upload(base64Image, {
+      folder: 'products',
+    });
+    return result.secure_url;
+  } catch (error) {
+    console.error('Cloudinary upload error:', error);
+    throw new Error('Failed to upload image to Cloudinary');
+  }
+}
+
+
+async function uploadBufferToCloudinary(buffer: Buffer, mimeType: string) {
+  try {
+    const base64Image = `data:${mimeType};base64,${buffer.toString('base64')}`;
+    return await uploadToCloudinary(base64Image);
+  } catch (error) {
+    console.error('Buffer upload error:', error);
+    throw new Error('Failed to process image buffer');
+  }
+}
+
 export async function GET(request: Request) {
   try {
     await dbConnect();
     
-    // Get URL parameters
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
@@ -17,7 +49,7 @@ export async function GET(request: Request) {
     const featured = searchParams.get('featured');
     const search = searchParams.get('search');
 
-    // Build query
+    
     let query: any = {};
     
     if (category) query.category = category;
@@ -29,7 +61,6 @@ export async function GET(request: Request) {
       ];
     }
 
-    // Execute query with pagination
     const skip = (page - 1) * limit;
     const products = await Product.find(query)
       .skip(skip)
@@ -53,20 +84,55 @@ export async function GET(request: Request) {
   }
 }
 
-// POST new product
 export async function POST(request: Request) {
   try {
     await dbConnect();
 
-    const body = await request.json();
+    const contentType = request.headers.get('content-type') || '';
+    let body: any;
+    let imageFiles: string[] = [];
 
-    // Generate unique productID
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      body = {
+        name: formData.get('name'),
+        description: formData.get('description'),
+        price: parseFloat(formData.get('price') as string),
+        category: formData.get('category'),
+        stock: parseInt(formData.get('stock') as string),
+        isFeatured: formData.get('isFeatured') === 'true',
+      };
+
+      const files = formData.getAll('images') as File[];
+      if (files && files.length > 0) {
+        for (const file of files) {
+          const arrayBuffer = await file.arrayBuffer();
+          const buffer = Buffer.from(arrayBuffer);
+          const imageUrl = await uploadBufferToCloudinary(buffer, file.type);
+          imageFiles.push(imageUrl);
+        }
+      }
+    } else {
+      body = await request.json();
+      if (body.images && Array.isArray(body.images)) {
+        for (const image of body.images) {
+          if (typeof image === 'string' && image.startsWith('data:image')) {
+            const imageUrl = await uploadToCloudinary(image);
+            imageFiles.push(imageUrl);
+          } else if (typeof image === 'string') {
+            imageFiles.push(image);
+          }
+        }
+      }
+    }
+
     const count = await Product.countDocuments();
     const productID = `PROD${String(count + 1).padStart(6, '0')}`;
     
     const product = await Product.create({
       ...body,
-      productID
+      productID,
+      images: imageFiles.length > 0 ? imageFiles : (body.images || []),
     });
 
     return NextResponse.json(product, { status: 201 });
@@ -79,24 +145,47 @@ export async function POST(request: Request) {
       );
     }
     return NextResponse.json(
-      { error: 'Failed to create product' },
+      { error: 'Failed to create product', details: error.message },
       { status: 500 }
     );
   }
 }
 
-// PUT update multiple products
 export async function PUT(request: Request) {
   try {
     await dbConnect();
     
     const updates = await request.json();
-    const operations = updates.map((update: any) => ({
-      updateOne: {
-        filter: { productID: update.productID },
-        update: { $set: update }
+    const operations = [];
+    
+    for (const update of updates) {
+      let imageUrls = update.images || [];
+      
+      if (Array.isArray(update.images)) {
+        const newImageUrls = [];
+        for (const image of update.images) {
+          if (typeof image === 'string' && image.startsWith('data:image')) {
+            const imageUrl = await uploadToCloudinary(image);
+            newImageUrls.push(imageUrl);
+          } else {
+            newImageUrls.push(image);
+          }
+        }
+        imageUrls = newImageUrls;
       }
-    }));
+      
+      operations.push({
+        updateOne: {
+          filter: { productID: update.productID },
+          update: { 
+            $set: {
+              ...update,
+              images: imageUrls
+            } 
+          }
+        }
+      });
+    }
 
     const result = await Product.bulkWrite(operations);
 
@@ -116,15 +205,62 @@ export async function DELETE(request: Request) {
     await dbConnect();
     
     const { productIDs } = await request.json();
+    
+    const productsToDelete = await Product.find({ productID: { $in: productIDs } });
+    
     const result = await Product.deleteMany({
       productID: { $in: productIDs }
     });
+    
+    for (const product of productsToDelete) {
+      for (const imageUrl of product.images) {
+        if (imageUrl.includes('cloudinary.com')) {
+          try {
+       
+            const urlParts = imageUrl.split('/');
+            const filenameWithExt = urlParts[urlParts.length - 1];
+            const public_id = `products/${filenameWithExt.split('.')[0]}`;
+            await cloudinary.uploader.destroy(public_id);
+          } catch (err) {
+            console.error('Failed to delete Cloudinary image:', err);
+          }
+        }
+      }
+    }
 
     return NextResponse.json(result);
   } catch (error) {
     console.error('Products DELETE error:', error);
     return NextResponse.json(
       { error: 'Failed to delete products' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    await dbConnect();
+    
+    const formData = await request.formData();
+    const file = formData.get('image') as File;
+    
+    if (!file) {
+      return NextResponse.json(
+        { error: 'No image provided' },
+        { status: 400 }
+      );
+    }
+    
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const imageUrl = await uploadBufferToCloudinary(buffer, file.type);
+    
+    return NextResponse.json({ url: imageUrl });
+  } catch (error) {
+    console.error('Image upload error:', error);
+    return NextResponse.json(
+      { error: 'Failed to upload image' },
       { status: 500 }
     );
   }
