@@ -23,6 +23,7 @@ export async function POST() {
     });
     return NextResponse.json({ url: session.url });
   } catch (error) {
-    return NextResponse.json({ error: 'Error creating checkout session' }, { status: 500 });
+    console.log(error)
+    return NextResponse.json({ error: 'Error creating checkout session', message: error }, { status: 500 });
   }
 }

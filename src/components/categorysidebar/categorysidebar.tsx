@@ -13,7 +13,7 @@ interface CategorySidebarProps {
 }
 
 const categories: Category[] = [
-  { name: "WOMEN", sub: ["Winter Collection"] },
+  { name: "WOMEN", sub: ["Luxury Lawn"] },
   { name: "MEN", sub: ["Winter Collection", "Summer Collection"] }
 ];
 
@@ -38,7 +38,7 @@ const CategorySidebar = ({ onCategorySelect }: CategorySidebarProps) => {
     <div className="mt-6 mb-6">
       <button
         onClick={toggleSidebar}
-        className="bg-[#B39F93] text-white p-3 w-[67%] rounded-t-lg flex items-center gap-2"
+        className="bg-[#B39F93] text-white p-3 w-[100%] rounded-t-lg flex items-center gap-2"
       >
         <Menu className="h-5 w-5" />
         <span className="text-lg font-semibold">Category</span>

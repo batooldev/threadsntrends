@@ -13,10 +13,12 @@ interface ProductFormData {
   category: string;
   stock: number;
   isFeatured: boolean;
+  size: string[],
 }
 
 const MAX_IMAGES = 5;
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const AVAILABLE_SIZES = ["XS", "S", "M", "L", "XL"];
 
 const ProductForm = () => {
   const [product, setProduct] = useState<ProductFormData>({
@@ -26,6 +28,7 @@ const ProductForm = () => {
     category: "",
     stock: 0,
     isFeatured: false,
+    size:[],
   });
 
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
@@ -50,6 +53,16 @@ const ProductForm = () => {
           : value,
     }));
   };
+
+  const handleSizeChange = (size: string) => {
+    setProduct((prev) => ({
+      ...prev,
+      size: prev.size.includes(size)
+        ? prev.size.filter((s) => s !== size) // Remove if already selected
+        : [...prev.size, size], // Add if not selected
+    }))
+   };
+  
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -116,7 +129,11 @@ const ProductForm = () => {
       formData.append("description", product.description);
       formData.append("category", product.category);
       formData.append("stock", String(product.stock));
-      formData.append("isFeatured", String(product.isFeatured));
+      formData.append("isFeatured" , String(product.isFeatured));
+      formData.append("size", JSON.stringify(product.size));
+
+      console.log("Sizes: ", JSON.stringify(product.size))
+
       
       // Append each selected image file to the formData
       selectedImages.forEach((image) => {
@@ -133,14 +150,15 @@ const ProductForm = () => {
       if (!response.ok) throw new Error(data.error || "Failed to add product");
       
       // Reset form after successful submission
-      setProduct({
-        name: "",
-        price: "",
-        description: "",
-        category: "",
-        stock: 0,
-        isFeatured: false,
-      });
+      // setProduct({
+      //   name: "",
+      //   price: "",
+      //   description: "",
+      //   category: "",
+      //   stock: 0,
+      //   isFeatured: false,
+      //   size:[],
+      // });
       setSelectedImages([]);
       setPreviewUrls([]);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -255,6 +273,29 @@ const ProductForm = () => {
             </div>
           )}
         </div>
+            
+        <div className="space-y-4">
+        <div>
+          <label className="block text-gray-700 font-semibold mb-1">
+            Select Sizes
+          </label>
+          <div className="flex space-x-2">
+            {AVAILABLE_SIZES.map((size) => (
+              <label key={size} className="flex items-center space-x-1">
+                <input
+                  type="checkbox"
+                  checked={product.size.includes(size)}
+                  onChange={() => handleSizeChange(size)}
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <span className="text-gray-700">{size}</span>
+              </label>
+            ))}
+          </div>
+          <p className="text-sm text-gray-500">Select available sizes for this product.</p>
+        </div>
+
+      </div>
 
         <div>
           <label htmlFor="description" className="block text-gray-700 font-semibold mb-1">

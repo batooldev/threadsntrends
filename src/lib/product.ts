@@ -1,12 +1,13 @@
 import mongoose from 'mongoose';
 
+
+// Check if the model is already defined to prevent recompilation errors
 const ProductSchema = new mongoose.Schema(
   {
-   
     productID: {
       type: String,
       required: true,
-      // unique: true,
+      unique: true,
       trim: true,
     },
     name: {
@@ -45,16 +46,18 @@ const ProductSchema = new mongoose.Schema(
         required: true,
       },
     ],
+    
+    sizes: { 
+      type: [String],
+      default: [],
+    },
     isFeatured: {
       type: Boolean,
       default: false,
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
     },
   },
   { timestamps: true }
 );
 
-export default mongoose.models.Product || mongoose.model('Product', ProductSchema);
+export default mongoose.models.Product || mongoose.model('Product', ProductSchema); 
+
