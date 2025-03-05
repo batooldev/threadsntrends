@@ -28,6 +28,20 @@ const Cart = () => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== id));
   };
 
+  async function handleCheckout(item: any) {
+    try {
+      const response = await fetch("/api/checkout-session", {
+        method: "POST"
+      })
+      const data = await response.json();
+      console.log("Data: ", data);
+      if (response.ok) {
+        window.open(data?.url, "_blank")
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
   const totalPrice = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   return (
@@ -66,9 +80,9 @@ const Cart = () => {
             ))}
             <div className="flex justify-between items-center mt-4">
               <h3 className="text-lg font-bold">Total: ${totalPrice}</h3>
-            <Link href="/checkout">
-            <Button variant="default">Proceed to Checkout</Button>
-            </Link>
+            {/* <Link href="/checkout"> */}
+            <Button onClick={handleCheckout} variant="default">Proceed to Checkout</Button>
+            {/* </Link> */}
             </div>
           </div>
         )}
