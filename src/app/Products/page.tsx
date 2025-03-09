@@ -70,7 +70,7 @@ export default function ProductPage() {
 
   const ProductCard = ({ product }: { product: Product }) => (
     <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-[1.02]">
-      <Link href={`/products/${product.productID}`} className="block">
+      <Link href={`/product/${product.productID}`} className="block">
         <div className="relative w-full h-[400px]">
           {product.images.length > 0 ? (
             <Image
