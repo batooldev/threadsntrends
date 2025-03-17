@@ -3,16 +3,21 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Head from "next/head";
 import Link from "next/link";
+// import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 // Define the product interface
 interface Product {
+  _id: string;
   productID: string;
   name: string;
   price: number;
   description: string;
-  imageUrl?: string;
+  category: string;
+  images?: Array<string>;
   inStock: boolean;
-  size?: string; // Added size field
+  size?: string;
+  stock: number;
 }
 
 export default function ProductPage(): JSX.Element {
@@ -21,6 +26,11 @@ export default function ProductPage(): JSX.Element {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [addingToCart, setAddingToCart] = useState<boolean>(false);
+  const [cartMessage, setCartMessage] = useState<string | null>(null);
+  
+  // const { data: session } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
     // Make sure we have an ID before fetching
@@ -29,10 +39,10 @@ export default function ProductPage(): JSX.Element {
     const fetchProduct = async (): Promise<void> => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/products/${id}`); // ✅ Fixed string interpolation
+        const response = await fetch(`/api/product/${id}`);
 
         if (!response.ok) {
-          throw new Error(`Error: ${response.status}`); // ✅ Fixed error handling
+          throw new Error(`Error: ${response.status}`);
         }
 
         const data: Product = await response.json();
@@ -47,6 +57,53 @@ export default function ProductPage(): JSX.Element {
 
     fetchProduct();
   }, [id]);
+
+  const handleAddToCart = async () => {
+    // if (!session) {
+      // Redirect to login if not authenticated
+      // router.push('/login?redirect=' + encodeURIComponent(window.location.pathname));
+      // return;
+    // }
+
+    if (!product) return;
+
+    try {
+      setAddingToCart(true);
+      
+      const response = await fetch('/api/cart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: "67c59a3b1eeafc3be590e110",
+          productId: product._id,
+          name: product.name,
+          description: product.description,
+          category: product.category || 'uncategorized',
+          price: product.price,
+          stock: product.stock,
+          size: product.size,
+          image: product.images?.[0],
+          quantity: 1
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        setCartMessage('Product added to cart!');
+        setTimeout(() => setCartMessage(null), 3000); // Clear message after 3 seconds
+      } else {
+        throw new Error(data.message || 'Failed to add to cart');
+      }
+    } catch (err) {
+      console.error('Error adding to cart:', err);
+      setCartMessage(err instanceof Error ? err.message : 'Failed to add product to cart');
+    } finally {
+      setAddingToCart(false);
+    }
+  };
 
   if (loading)
     return (
@@ -82,9 +139,9 @@ export default function ProductPage(): JSX.Element {
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="md:flex">
             <div className="md:w-1/2 p-4">
-              {product.imageUrl ? (
+              {product.images?.[0] ? (
                 <img
-                  src={product.imageUrl}
+                  src={product.images?.[0]}
                   alt={product.name}
                   className="w-full h-auto object-cover rounded"
                 />
@@ -97,11 +154,11 @@ export default function ProductPage(): JSX.Element {
 
             <div className="md:w-1/2 p-6">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
-              <p className="text-2xl text-blue-600 mb-4">${product.price.toFixed(2)}</p>
+              <p className="text-2xl text-blue-600 mb-4">${product?.price?.toFixed(2)}</p>
 
               {product.inStock ? (
                 <span className="inline-block bg-green-100 text-green-800 px-3 py-1 text-sm rounded-full mb-4">
-                  In Stock
+                  In Stock ({product.stock} available)
                 </span>
               ) : (
                 <span className="inline-block bg-red-100 text-red-800 px-3 py-1 text-sm rounded-full mb-4">
@@ -123,10 +180,22 @@ export default function ProductPage(): JSX.Element {
                 <p className="text-gray-700">{product.description}</p>
               </div>
 
-              {product.inStock && (
-                <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded">
-                  Add to Cart
-                </button>
+              {product.stock > 0 && (
+                <div>
+                  <button 
+                    className={`bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded ${addingToCart ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    onClick={handleAddToCart}
+                    disabled={addingToCart}
+                  >
+                    {addingToCart ? 'Adding...' : 'Add to Cart'}
+                  </button>
+                  
+                  {cartMessage && (
+                    <div className="mt-3 text-sm font-medium text-green-600">
+                      {cartMessage}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>

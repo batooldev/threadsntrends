@@ -13,7 +13,7 @@ interface CategorySidebarProps {
 }
 
 const categories: Category[] = [
-  { name: "WOMEN", sub: ["Luxury Lawn"] },
+  { name: "WOMEN", sub: ["Luxury Lawn", "Kadar", "Loan"] },
   { name: "MEN", sub: ["Winter Collection", "Summer Collection"] }
 ];
 
@@ -26,8 +26,8 @@ const CategorySidebar = ({ onCategorySelect }: CategorySidebarProps) => {
     onCategorySelect(name);
   };
 
-  const handleCollectionSelect = (gender: string, collection: string): void => {
-    onCategorySelect(gender, collection);
+  const handleCollectionSelect = (collection: string): void => {
+    onCategorySelect(collection);
   };
 
   const toggleSidebar = (): void => {
@@ -51,7 +51,7 @@ const CategorySidebar = ({ onCategorySelect }: CategorySidebarProps) => {
               <div key={cat.name}>
                 <div
                   className="flex items-center justify-between p-3 hover:bg-[#F5EFE9] cursor-pointer transition-colors"
-                  onClick={() => toggleCategory(cat.name)}
+                  // onClick={() => toggleCategory(cat.name)}
                 >
                   <span className="text-gray-700">{cat.name}</span>
                   {cat.sub.length > 0 ? (
@@ -70,7 +70,7 @@ const CategorySidebar = ({ onCategorySelect }: CategorySidebarProps) => {
                       <div
                         key={sub}
                         className="py-2 text-gray-600 hover:text-[#8C7B6F] cursor-pointer transition-colors"
-                        onClick={() => handleCollectionSelect(cat.name, sub)}
+                        onClick={() => handleCollectionSelect(sub)}
                       >
                         {sub}
                       </div>

@@ -1,48 +1,148 @@
 "use client";
-import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Trash, Minus, Plus, ShoppingCart } from "lucide-react";
 
 const Cart = () => {
-  const [cart, setCart] = useState([
-    { id: 1, name: "Product 1", price: 30, quantity: 1, image: "/images/product1.jpg" },
-    { id: 2, name: "Product 2", price: 45, quantity: 2, image: "/images/product2.jpg" },
-  ]);
+  const [cart, setCart] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const increaseQuantity = (id: number) => {
-    setCart((prevCart) =>
-      prevCart.map((item) => (item.id === id ? { ...item, quantity: item.quantity + 1 } : item))
-    );
-  };
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const userId = "67c59a3b1eeafc3be590e110"; // This should ideally come from auth context
+        const response = await fetch(`/api/cart?userId=${userId}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch cart items');
+        }
+        
+        const data = await response.json();
+        setCart(data.cartItems);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching cart:", err);
+        setError(err.message);
+        setLoading(false);
+      }
+    };
 
-  const decreaseQuantity = (id: number) => {
-    setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.id === id && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item
-      )
-    );
-  };
+    fetchCart();
+  }, []);
 
-  const removeItem = (id: number) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== id));
-  };
-
-  async function handleCheckout(item: any) {
+  const increaseQuantity = async (id) => {
     try {
-      const response = await fetch("/api/checkout-session", {
-        method: "POST"
-      })
-      const data = await response.json();
-      console.log("Data: ", data);
+      const response = await fetch(`/api/cart`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          itemId: id, 
+          action: "increase" 
+        }),
+      });
+
       if (response.ok) {
-        window.open(data?.url, "_blank")
+        setCart((prevCart) =>
+          prevCart.map((item) => 
+            item._id === id ? { ...item, quantity: item.quantity + 1 } : item
+          )
+        );
       }
     } catch (error) {
-      console.log(error)
+      console.error("Error updating quantity:", error);
+    }
+  };
+
+  const decreaseQuantity = async (id) => {
+    try {
+      const response = await fetch(`/api/cart`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          itemId: id, 
+          action: "decrease" 
+        }),
+      });
+
+      if (response.ok) {
+        setCart((prevCart) =>
+          prevCart.map((item) =>
+            item._id === id && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+    }
+  };
+
+  const removeItem = async (id) => {
+    try {
+      const response = await fetch(`/api/cart`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ itemId: id }),
+      });
+
+      if (response.ok) {
+        setCart((prevCart) => prevCart.filter((item) => item._id !== id));
+      }
+    } catch (error) {
+      console.error("Error removing item:", error);
+    }
+  };
+
+  async function handleCheckout() {
+    try {
+      const response = await fetch("/api/checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          items: cart.map(item => ({
+            id: item._id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+          }))
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        window.open(data?.url, "_blank");
+      }
+    } catch (error) {
+      console.error("Error creating checkout session:", error);
     }
   }
-  const totalPrice = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+  const totalPrice = cart.reduce((acc, item) => acc + item.price * (item.quantity || 1), 0);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p>Loading your cart...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p>Error loading cart: {error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center items-center min-h-screen py-10">
@@ -58,31 +158,34 @@ const Cart = () => {
         ) : (
           <div>
             {cart.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-4 border-b">
-                <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
+              <div key={item._id} className="flex items-center justify-between p-4 border-b">
+                <img 
+                  src={item.image || "/images/placeholder.jpg"} 
+                  alt={item.name} 
+                  className="w-16 h-16 object-cover rounded" 
+                />
                 <div className="flex-1 ml-4">
                   <h3 className="font-semibold">{item.name}</h3>
                   <p className="text-gray-500">${item.price} each</p>
+                  {item.size && <p className="text-gray-400 text-sm">Size: {item.size}</p>}
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="icon" onClick={() => decreaseQuantity(item.id)}>
+                  <Button variant="outline" size="icon" onClick={() => decreaseQuantity(item._id)}>
                     <Minus size={16} />
                   </Button>
-                  <span className="w-8 text-center">{item.quantity}</span>
-                  <Button variant="outline" size="icon" onClick={() => increaseQuantity(item.id)}>
+                  <span className="w-8 text-center">{item.quantity || 1}</span>
+                  <Button variant="outline" size="icon" onClick={() => increaseQuantity(item._id)}>
                     <Plus size={16} />
                   </Button>
                 </div>
-                <Button variant="destructive" size="icon" onClick={() => removeItem(item.id)}>
+                <Button variant="destructive" size="icon" onClick={() => removeItem(item._id)}>
                   <Trash size={16} />
                 </Button>
               </div>
             ))}
             <div className="flex justify-between items-center mt-4">
-              <h3 className="text-lg font-bold">Total: ${totalPrice}</h3>
-            {/* <Link href="/checkout"> */}
-            <Button onClick={handleCheckout} variant="default">Proceed to Checkout</Button>
-            {/* </Link> */}
+              <h3 className="text-lg font-bold">Total: ${totalPrice.toFixed(2)}</h3>
+              <Button onClick={handleCheckout} variant="default">Proceed to Checkout</Button>
             </div>
           </div>
         )}

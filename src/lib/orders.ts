@@ -21,6 +21,9 @@ const OrderSchema=new mongoose.Schema(
         trim: true,
         match: /.+\@.+\..+/, // Basic email validation
       },
+      billingAddress: {
+
+      },
       products: [
         {
           productID: {

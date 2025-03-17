@@ -8,7 +8,11 @@ import { buffer } from 'micro';
 //import { auth } from '@/lib/auth';
 
 
-
+cloudinary.config({
+  cloud_name:"do9w0lwh2",
+  api_key: "726923492364645",
+  api_secret: "oLnfYutUR5lUrhQ0MVJ6fwj3Pa0"
+});
 
 
 async function uploadToCloudinary(base64Image: string) {
@@ -44,12 +48,14 @@ export async function GET(request: Request) {
     const category = searchParams.get('category');
     const featured = searchParams.get('featured');
     const search = searchParams.get('search');
+    const size = searchParams.get('size');
 
     
     let query: any = {};
     
     if (category) query.category = category;
     if (featured) query.isFeatured = featured === 'true';
+    if (size) query.size = size;
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -59,6 +65,7 @@ export async function GET(request: Request) {
 
     const skip = (page - 1) * limit;
     const products = await Product.find(query)
+      
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
@@ -85,11 +92,27 @@ export async function POST(request: Request) {
     await dbConnect();
 
     const contentType = request.headers.get('content-type') || '';
-    let body: any;
+    let body: any = {};
     let imageFiles: string[] = [];
+    let sizesArray: string[] = [];
 
     if (contentType.includes('multipart/form-data')) {
       const formData = await request.formData();
+      console.log("📩 Received formData:", formData);
+
+      // Parse size field separately
+      let sizeField = formData.get('size');
+      if (typeof sizeField === "string") {
+        try {
+          sizesArray = JSON.parse(sizeField);
+          console.log("✅ Successfully parsed size field:", sizesArray);
+        } catch (error) {
+          console.error("🚨 Failed to parse size field:", error);
+          sizesArray = [];
+        }
+      }
+
+      // Build basic body object
       body = {
         name: formData.get('name'),
         description: formData.get('description'),
@@ -97,9 +120,13 @@ export async function POST(request: Request) {
         category: formData.get('category'),
         stock: parseInt(formData.get('stock') as string),
         isFeatured: formData.get('isFeatured') === 'true',
+        sizes: sizesArray // Use 'sizes' here instead of 'size'
       };
-
+     
+      console.log("📝 Basic body:", body);
+    
       const files = formData.getAll('images') as File[];
+    
       if (files && files.length > 0) {
         for (const file of files) {
           const arrayBuffer = await file.arrayBuffer();
@@ -110,6 +137,22 @@ export async function POST(request: Request) {
       }
     } else {
       body = await request.json();
+      
+      if (body.size && typeof body.size === 'string') {
+        try {
+          sizesArray = JSON.parse(body.size);
+          body.sizes = sizesArray; // Use 'sizes' here
+          delete body.size; // Remove 'size' to prevent conflict
+          console.log("✅ Successfully parsed size field from JSON body:", sizesArray);
+        } catch (error) {
+          console.error("🚨 Failed to parse size field in JSON body:", error);
+          body.sizes = []; // Use 'sizes' here
+        }
+      } else if (body.size && Array.isArray(body.size)) {
+        body.sizes = body.size; // Convert 'size' to 'sizes'
+        delete body.size;
+      }
+      
       if (body.images && Array.isArray(body.images)) {
         for (const image of body.images) {
           if (typeof image === 'string' && image.startsWith('data:image')) {
@@ -122,14 +165,26 @@ export async function POST(request: Request) {
       }
     }
 
+    console.log("📏 Sizes array:", sizesArray);
+
     const count = await Product.countDocuments();
     const productID = `PROD${String(count + 1).padStart(6, '0')}`;
     
-    const product = await Product.create({
+    // Create the product data
+    console.log("Sizesa: ", sizesArray)
+    const productData = {
       ...body,
       productID,
       images: imageFiles.length > 0 ? imageFiles : (body.images || []),
-    });
+      sizes: sizesArray // Use 'sizes' here
+    };
+    
+    console.log("📦 Product data being saved:", productData);
+    
+    // Save the product
+    const product = await Product.create(productData);
+    
+    console.log("✅ Product after save:", product);
 
     return NextResponse.json(product, { status: 201 });
   } catch (error: any) {
@@ -142,93 +197,6 @@ export async function POST(request: Request) {
     }
     return NextResponse.json(
       { error: 'Failed to create product', details: error.message },
-      { status: 500 }
-    );
-  }
-}
-
-export async function PUT(request: Request) {
-  try {
-    await dbConnect();
-    
-    const updates = await request.json();
-    const operations = [];
-    
-    for (const update of updates) {
-      let imageUrls = update.images || [];
-      
-      if (Array.isArray(update.images)) {
-        const newImageUrls = [];
-        for (const image of update.images) {
-          if (typeof image === 'string' && image.startsWith('data:image')) {
-            const imageUrl = await uploadToCloudinary(image);
-            newImageUrls.push(imageUrl);
-          } else {
-            newImageUrls.push(image);
-          }
-        }
-        imageUrls = newImageUrls;
-      }
-      
-      operations.push({
-        updateOne: {
-          filter: { productID: update.productID },
-          update: { 
-            $set: {
-              ...update,
-              images: imageUrls
-            } 
-          }
-        }
-      });
-    }
-
-    const result = await Product.bulkWrite(operations);
-
-    return NextResponse.json(result);
-  } catch (error) {
-    console.error('Products PUT error:', error);
-    return NextResponse.json(
-      { error: 'Failed to update products' },
-      { status: 500 }
-    );
-  }
-}
-
-// DELETE multiple products
-export async function DELETE(request: Request) {
-  try {
-    await dbConnect();
-    
-    const { productIDs } = await request.json();
-    
-    const productsToDelete = await Product.find({ productID: { $in: productIDs } });
-    
-    const result = await Product.deleteMany({
-      productID: { $in: productIDs }
-    });
-    
-    for (const product of productsToDelete) {
-      for (const imageUrl of product.images) {
-        if (imageUrl.includes('cloudinary.com')) {
-          try {
-       
-            const urlParts = imageUrl.split('/');
-            const filenameWithExt = urlParts[urlParts.length - 1];
-            const public_id = `products/${filenameWithExt.split('.')[0]}`;
-            await cloudinary.uploader.destroy(public_id);
-          } catch (err) {
-            console.error('Failed to delete Cloudinary image:', err);
-          }
-        }
-      }
-    }
-
-    return NextResponse.json(result);
-  } catch (error) {
-    console.error('Products DELETE error:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete products' },
       { status: 500 }
     );
   }

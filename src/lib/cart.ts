@@ -5,22 +5,13 @@ const { Schema } = mongoose;
 const cartSchema = new Schema({
   userId: { 
     type: Schema.Types.ObjectId, 
-    ref: 'User', 
     required: true 
   },
   productId: { 
     type: Schema.Types.ObjectId, 
-    ref: 'Product', 
     required: true 
   },
   name: { 
-    type: String, 
-    required: true 
-  },
-  description: { 
-    type: String 
-  },
-  category: { 
     type: String, 
     required: true 
   },
@@ -28,20 +19,17 @@ const cartSchema = new Schema({
     type: Number, 
     required: true 
   },
-  stock: { 
+  quantity: { 
     type: Number, 
-    required: true 
+    default: 1,
+    min: 1
   },
   size: { 
     type: String 
   },
   image: { 
     type: String 
-  },
-  isFeatured: { 
-    type: Boolean, 
-    default: false 
   }
 }, { timestamps: true });
 
- export default mongoose.models.cart || mongoose.model('cart', cartSchema)
+export default mongoose.models.Cart || mongoose.model('Cart', cartSchema);
