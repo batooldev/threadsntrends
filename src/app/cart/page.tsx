@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Trash, Minus, Plus, ShoppingCart } from "lucide-react";
+import Link from "next/link";
 
 const Cart = () => {
   const [cart, setCart] = useState([]);
@@ -21,7 +22,7 @@ const Cart = () => {
         const data = await response.json();
         setCart(data.cartItems);
         setLoading(false);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error fetching cart:", err);
         setError(err.message);
         setLoading(false);
@@ -31,7 +32,7 @@ const Cart = () => {
     fetchCart();
   }, []);
 
-  const increaseQuantity = async (id) => {
+  const increaseQuantity = async (id: string) => {
     try {
       const response = await fetch(`/api/cart`, {
         method: "PUT",
@@ -45,8 +46,8 @@ const Cart = () => {
       });
 
       if (response.ok) {
-        setCart((prevCart) =>
-          prevCart.map((item) => 
+        setCart((prevCart: any) =>
+          prevCart.map((item: any) => 
             item._id === id ? { ...item, quantity: item.quantity + 1 } : item
           )
         );
@@ -56,7 +57,7 @@ const Cart = () => {
     }
   };
 
-  const decreaseQuantity = async (id) => {
+  const decreaseQuantity = async (id: string) => {
     try {
       const response = await fetch(`/api/cart`, {
         method: "PUT",
@@ -70,8 +71,8 @@ const Cart = () => {
       });
 
       if (response.ok) {
-        setCart((prevCart) =>
-          prevCart.map((item) =>
+        setCart((prevCart: any) =>
+          prevCart.map((item: any) =>
             item._id === id && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item
           )
         );
@@ -81,7 +82,7 @@ const Cart = () => {
     }
   };
 
-  const removeItem = async (id) => {
+  const removeItem = async (id: string) => {
     try {
       const response = await fetch(`/api/cart`, {
         method: "DELETE",
@@ -92,41 +93,14 @@ const Cart = () => {
       });
 
       if (response.ok) {
-        setCart((prevCart) => prevCart.filter((item) => item._id !== id));
+        setCart((prevCart: any) => prevCart.filter((item: any) => item._id !== id));
       }
     } catch (error) {
       console.error("Error removing item:", error);
     }
   };
 
-  async function handleCheckout() {
-    try {
-      const response = await fetch("/api/checkout-session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ 
-          items: cart.map(item => ({
-            id: item._id,
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-          }))
-        }),
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        window.open(data?.url, "_blank");
-      }
-    } catch (error) {
-      console.error("Error creating checkout session:", error);
-    }
-  }
-
-  const totalPrice = cart.reduce((acc, item) => acc + item.price * (item.quantity || 1), 0);
+  const totalPrice = cart.reduce((acc: any, item: any) => acc + item.price * (item.quantity || 1), 0);
 
   if (loading) {
     return (
@@ -157,7 +131,7 @@ const Cart = () => {
           </div>
         ) : (
           <div>
-            {cart.map((item) => (
+            {cart.map((item: any) => (
               <div key={item._id} className="flex items-center justify-between p-4 border-b">
                 <img 
                   src={item.image || "/images/placeholder.jpg"} 
@@ -185,7 +159,9 @@ const Cart = () => {
             ))}
             <div className="flex justify-between items-center mt-4">
               <h3 className="text-lg font-bold">Total: ${totalPrice.toFixed(2)}</h3>
-              <Button onClick={handleCheckout} variant="default">Proceed to Checkout</Button>
+              <Link href={`/checkout`}>
+                <Button variant="default">Proceed to Checkout</Button>
+              </Link>
             </div>
           </div>
         )}

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -8,22 +8,156 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function Checkout() {
-  const [billingAddress, setBillingAddress] = useState("same"); // Track billing address selection
+  const [billingAddress, setBillingAddress] = useState("same");
+  const [cart, setCart] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    firstName: "",
+    lastName: "",
+    address: "",
+    apartment: "",
+    city: "",
+    postalCode: "",
+    phone: "",
+    billingFirstName: "",
+    billingLastName: "",
+    billingAddress: "",
+    billingApartment: "",
+    billingCity: "",
+    billingPostalCode: "",
+    billingPhone: "",
+    paymentMethod: "card",
+    emailOffers: false,
+  });
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const userId = "67c59a3b1eeafc3be590e110";
+        const response = await fetch(`/api/cart?userId=${userId}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch cart items');
+        }
+        
+        const data = await response.json();
+        setCart(data.cartItems);
+        setLoading(false);
+      } catch (err: any) {
+        console.error("Error fetching cart:", err);
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchCart();
+  }, []);
+
+  const handleInputChange = (e: any) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+
+    try {
+      const orderData = {
+        customerEmail: formData.email,
+        customerName: `${formData.firstName} ${formData.lastName}`,
+        shippingAddress: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          address: formData.address,
+          apartment: formData.apartment,
+          city: formData.city,
+          postalCode: formData.postalCode,
+          phone: formData.phone,
+        },
+        billingAddress: billingAddress === "same" 
+          ? {
+              firstName: formData.firstName,
+              lastName: formData.lastName,
+              address: formData.address,
+              apartment: formData.apartment,
+              city: formData.city,
+              postalCode: formData.postalCode,
+              phone: formData.phone,
+            }
+          : {
+              firstName: formData.billingFirstName,
+              lastName: formData.billingLastName,
+              address: formData.billingAddress,
+              apartment: formData.billingApartment,
+              city: formData.billingCity,
+              postalCode: formData.billingPostalCode,
+              phone: formData.billingPhone,
+            },
+        products: cart.map((item: any) => ({
+          productID: item._id,
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        totalAmount: cart.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0) + 99,
+        shippingCost: 99,
+        paymentMethod: formData.paymentMethod,
+      };
+
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        if (formData.paymentMethod === "card") {
+          window.location.href = data.paymentUrl;
+        } else {
+          window.location.href = data.confirmationUrl;
+        }
+      } else {
+        throw new Error(data.error || "Failed to create order");
+      }
+    } catch (err:any) {
+      console.error("Error creating order:", err);
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 p-6 max-w-5xl mx-auto">
-      {/* Left Section - Contact, Delivery, Shipping, Payment, and Billing */}
+    <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row gap-8 p-6 max-w-5xl mx-auto">
       <div className="flex-1 space-y-6">
         {/* Contact Information */}
         <Card>
           <CardContent className="p-6 space-y-4">
             <h2 className="text-lg font-semibold">Contact</h2>
-            <Input placeholder="Email" className="border-red-500" />
+            <Input 
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              placeholder="Email" 
+              required
+            />
             <div className="flex items-center space-x-2">
-              <Checkbox id="email-offers" />
-              <label htmlFor="email-offers" className="text-sm">
-                Email me with news and offers
-              </label>
+              <Checkbox 
+                id="emailOffers" 
+                checked={formData.emailOffers}
+                onCheckedChange={(checked) => 
+                  setFormData(prev => ({ ...prev, emailOffers: !!checked }))}
+              />
+              <label htmlFor="emailOffers">Email me with news and offers</label>
             </div>
           </CardContent>
         </Card>
@@ -42,15 +176,55 @@ export default function Checkout() {
                 <SelectItem value="islamabad">Islamabad</SelectItem>
               </SelectContent>
             </Select>
-            <Input placeholder="First name" />
-            <Input placeholder="Last name" />
-            <Input placeholder="Address" />
-            <Input placeholder="Apartment, suite, etc. (optional)" />
+            <Input 
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleInputChange}
+              placeholder="First name" 
+              required
+            />
+            <Input 
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleInputChange}
+              placeholder="Last name" 
+              required
+            />
+            <Input 
+              name="address"
+              value={formData.address}
+              onChange={handleInputChange}
+              placeholder="Address" 
+              required
+            />
+            <Input 
+              name="apartment"
+              value={formData.apartment}
+              onChange={handleInputChange}
+              placeholder="Apartment, suite, etc. (optional)" 
+            />
             <div className="flex gap-2">
-              <Input placeholder="City" className="border-red-500" />
-              <Input placeholder="Postal code (optional)" />
+              <Input 
+                name="city"
+                value={formData.city}
+                onChange={handleInputChange}
+                placeholder="City" 
+                required
+              />
+              <Input 
+                name="postalCode"
+                value={formData.postalCode}
+                onChange={handleInputChange}
+                placeholder="Postal code (optional)" 
+              />
             </div>
-            <Input placeholder="Phone" />
+            <Input 
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              placeholder="Phone" 
+              required
+            />
           </CardContent>
         </Card>
 
@@ -70,7 +244,12 @@ export default function Checkout() {
           <CardContent className="p-6 space-y-4">
             <h2 className="text-lg font-semibold">Payment</h2>
             <p className="text-sm text-gray-500">All transactions are secure and encrypted.</p>
-            <RadioGroup defaultValue="card" className="space-y-3">
+            <RadioGroup 
+              name="paymentMethod"
+              value={formData.paymentMethod}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, paymentMethod: value }))}
+              className="space-y-3"
+            >
               <div className="flex items-center space-x-3 border p-3 rounded-md">
                 <RadioGroupItem value="card" id="card" />
                 <label htmlFor="card" className="flex-1 text-sm">
@@ -83,7 +262,7 @@ export default function Checkout() {
                 <label htmlFor="cod" className="flex-1 text-sm">
                   Cash on Delivery (COD)
                 </label>
-                <p>COD not available for international client</p>
+                <p>COD not available for international clients</p>
               </div>
             </RadioGroup>
           </CardContent>
@@ -108,7 +287,6 @@ export default function Checkout() {
               </div>
             </RadioGroup>
 
-            {/* Billing Address Form (Shown Only if "Use a different billing address" is Selected) */}
             {billingAddress === "different" && (
               <div className="mt-4 space-y-3 p-4 border rounded-md bg-gray-50">
                 <Select>
@@ -122,32 +300,71 @@ export default function Checkout() {
                   </SelectContent>
                 </Select>
                 <div className="flex gap-2">
-                  <Input placeholder="First name" />
-                  <Input placeholder="Last name" />
+                  <Input 
+                    name="billingFirstName"
+                    value={formData.billingFirstName}
+                    onChange={handleInputChange}
+                    placeholder="First name" 
+                    required
+                  />
+                  <Input 
+                    name="billingLastName"
+                    value={formData.billingLastName}
+                    onChange={handleInputChange}
+                    placeholder="Last name" 
+                    required
+                  />
                 </div>
-                <Input placeholder="Address" />
-                <Input placeholder="Apartment, suite, etc. (optional)" />
+                <Input 
+                  name="billingAddress"
+                  value={formData.billingAddress}
+                  onChange={handleInputChange}
+                  placeholder="Address" 
+                  required
+                />
+                <Input 
+                  name="billingApartment"
+                  value={formData.billingApartment}
+                  onChange={handleInputChange}
+                  placeholder="Apartment, suite, etc. (optional)" 
+                />
                 <div className="flex gap-2">
-                  <Input placeholder="City" />
-                  <Input placeholder="Postal code (optional)" />
+                  <Input 
+                    name="billingCity"
+                    value={formData.billingCity}
+                    onChange={handleInputChange}
+                    placeholder="City" 
+                    required
+                  />
+                  <Input 
+                    name="billingPostalCode"
+                    value={formData.billingPostalCode}
+                    onChange={handleInputChange}
+                    placeholder="Postal code (optional)" 
+                  />
                 </div>
-                <Input placeholder="Phone (optional)" />
+                <Input 
+                  name="billingPhone"
+                  value={formData.billingPhone}
+                  onChange={handleInputChange}
+                  placeholder="Phone (optional)" 
+                />
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Pay Now Button */}
-        <Button className="w-full text-lg py-3">Pay Now</Button>
+        <Button type="submit" className="w-full text-lg py-3" disabled={submitting}>
+          {submitting ? "Processing..." : "Pay Now"}
+        </Button>
       </div>
 
-      {/* Right Section - Order Summary */}
       <div className="w-full lg:w-1/3">
         <Card>
           <CardContent className="p-6 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm">Subtotal</span>
-              <span className="text-sm font-semibold">Rs 7,990.00</span>
+              <span className="text-sm font-semibold">Rs {cart.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0).toFixed(2)}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm">Shipping</span>
@@ -155,13 +372,13 @@ export default function Checkout() {
             </div>
             <div className="border-t pt-4 flex items-center justify-between font-semibold">
               <span>Total</span>
-              <span>PKR Rs 8,089.00</span>
+              <span>PKR Rs {(cart.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0) + 99).toFixed(2)}</span>
             </div>
             <Input placeholder="Discount code" />
             <Button className="w-full">Apply</Button>
           </CardContent>
         </Card>
       </div>
-    </div>
+    </form>
   );
 }
