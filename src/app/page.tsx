@@ -26,7 +26,7 @@ export default function AboutUs() {
           
           <div className='relative w-full max-w-[1200px] h-full overflow-hidden'>
             <img
-              src="/images/download (9).jfif" // Update with actual path
+              src="/images/homepage.jfif" // Update with actual path
               alt="Tailored Display"
               // width={500}
               // height={500}

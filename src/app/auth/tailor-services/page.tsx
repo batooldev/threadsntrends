@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FaRuler, FaUserCheck, FaTshirt } from "react-icons/fa";
+import Link from "next/link";
 
 const services = [
   { title: "Online Measurement", icon: <FaRuler size={50} />, description: "Accurate online measurement services for a perfect fit." },
@@ -74,9 +75,9 @@ export default function TailorServices() {
           Click below to begin your precise measurement process with ease.
         </p>
         <div>
-          <Button className="bg-rosy_pink text-gray-700 px-10 py-4 text-lg font-medium rounded-full shadow-lg hover:bg-gray-100 transition-all">
+         <Link href="/measurement"> <Button className="bg-rosy_pink text-gray-700 px-10 py-4 text-lg font-medium rounded-full shadow-lg hover:bg-gray-100 transition-all">
             Get Started
-          </Button>
+          </Button> </Link>
         </div>
       </section>
     </div>

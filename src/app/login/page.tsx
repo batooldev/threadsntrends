@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Lock, User } from 'lucide-react';
 
 export default function LoginPage() {
+  const { data: session } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -26,24 +28,25 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      const result = await signIn('credentials', {
+        email: formData.email,
+        password: formData.password,
+        redirect: false,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Login failed');
+      if (result?.error) {
+        setError('Invalid credentials');
+      } else {
+        // Simplified redirect logic
+        if (session?.user.role === 'admin') {
+          router.push('/admin');
+        } else {
+          router.push('/auth');
+        }
       }
-
-      // Redirect to dashboard on successful login
-      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message);
+    } finally {
       setLoading(false);
     }
   };
