@@ -111,25 +111,38 @@ export default function Checkout() {
         paymentMethod: formData.paymentMethod,
       };
 
-      const response = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        if (formData.paymentMethod === "card") {
-          window.location.href = data.paymentUrl;
+      if (formData.paymentMethod === "card") {
+        // For card payments, create Stripe checkout session
+        const response = await fetch("/api/checkout-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: cart,
+            ...orderData
+          }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          window.location.href = data.url;
         } else {
-          window.location.href = data.confirmationUrl;
+          throw new Error(data.error || "Failed to create payment session");
         }
       } else {
-        throw new Error(data.error || "Failed to create order");
+        // For COD, create order directly
+        const response = await fetch("/api/cod-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(orderData),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          // window.location.href = data.confirmationUrl;
+        } else {
+          throw new Error(data.error || "Failed to create order");
+        }
       }
     } catch (err:any) {
-      console.error("Error creating order:", err);
+      console.error("Error processing order:", err);
       setError(err.message);
     } finally {
       setSubmitting(false);

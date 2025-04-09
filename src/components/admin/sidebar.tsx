@@ -11,22 +11,22 @@ export default function AdminSidebar() {
       <nav>
         <ul className="space-y-4">
           <li>
-            <Link href="/admin">
+            <Link href="/auth/admin">
               <div className="">Dashboard</div>
             </Link>
           </li>
           <li>
-            <Link href="/admin/products">
+            <Link href="/auth/admin/products">
               <div className="">Products</div>
             </Link>
           </li>
           <li>
-            <Link href="/admin/orders">
+            <Link href="/auth/admin/orders">
               <div className="">Orders</div>
             </Link>
           </li>
           <li>
-            <Link href="/admin/contact">
+            <Link href="/auth/admin/contact">
               <div className="">Contact</div>
             </Link>
           </li>

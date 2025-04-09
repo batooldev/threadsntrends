@@ -159,7 +159,7 @@ const Cart = () => {
             ))}
             <div className="flex justify-between items-center mt-4">
               <h3 className="text-lg font-bold">Total: ${totalPrice.toFixed(2)}</h3>
-              <Link href={`/checkout`}>
+              <Link href={`/auth/checkout`}>
                 <Button variant="default">Proceed to Checkout</Button>
               </Link>
             </div>

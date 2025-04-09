@@ -58,7 +58,7 @@ const Header = () => {
       {/* Tailor button */}
       <div className="bg-solid_brown flex justify-end">
 
-        <Link href="/tailor-services">
+        <Link href="/auth/tailor-services">
         <Button variant="outline" >Tailor Service</Button>
         </Link>
     </div>
@@ -67,7 +67,7 @@ const Header = () => {
         {/* Navigation links */}
         <div className="flex gap-3">
           <Link href={"/"}>Home</Link>
-          <Link href="/Products">Product</Link>
+          <Link href="/auth">Product</Link>
           <Link href="/AboutUs">AboutUs</Link>
           <Link href="/ContactUs">ContactUs</Link>
         </div>
@@ -93,7 +93,7 @@ const Header = () => {
           
           {/* shoping cart icon*/}
           <div>
-            <Link href="/cart" className="relative">
+            <Link href="/auth/cart" className="relative">
           <CiShoppingCart
             className="icon"
             style={{ fontSize: "1.5rem" }}  
