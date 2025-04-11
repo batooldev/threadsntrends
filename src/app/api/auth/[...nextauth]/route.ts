@@ -8,7 +8,7 @@ export const authOptions = {
     signIn: '/login',
     error: '/login',
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || "12zxc123asdddzxcadaszxcasd",
   providers: [
     CredentialsProvider({
       name: 'Credentials',

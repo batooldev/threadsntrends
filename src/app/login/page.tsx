@@ -39,7 +39,7 @@ export default function LoginPage() {
       } else {
         // Simplified redirect logic
         if (session?.user.role === 'admin') {
-          router.push('/admin');
+          router.push('/auth/admin');
         } else {
           router.push('/auth');
         }

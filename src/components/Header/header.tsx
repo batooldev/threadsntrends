@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useState , useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { CiSearch, CiShoppingCart} from "react-icons/ci";
+import { CiSearch, CiShoppingCart } from "react-icons/ci";
 import { FiUser } from "react-icons/fi";
-import { Button } from "@/components/ui/button"
-
+import { Button } from "@/components/ui/button";
+import { signOut, useSession } from "next-auth/react";
+import { LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface Product {
-  _id: string
+  _id: string;
   productID: string;
   name: string;
   price: number;
@@ -26,7 +28,8 @@ const Header = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
-
+  const { data: session } = useSession();
+  const router = useRouter();
   const toggleSearch = () => setShowSearch(!showSearch);
   const closeSearch = () => setShowSearch(false);
 
@@ -40,7 +43,6 @@ const Header = () => {
       try {
         const response = await fetch(`/api/search?q=${searchQuery}`);
 
-
         const data = await response.json();
         setSearchResults(data.products || []);
       } catch (error) {
@@ -51,17 +53,15 @@ const Header = () => {
     const delaySearch = setTimeout(fetchResults, 300); // Delay search for better UX
     return () => clearTimeout(delaySearch);
   }, [searchQuery]);
-  
 
   return (
     <div>
       {/* Tailor button */}
       <div className="bg-solid_brown flex justify-end">
-
         <Link href="/auth/tailor-services">
-        <Button variant="outline" >Tailor Service</Button>
+          <Button variant="outline">Tailor Service</Button>
         </Link>
-    </div>
+      </div>
 
       <nav className="flex flex-row px-5 py-5 bg-[#fff] shadow-md">
         {/* Navigation links */}
@@ -79,7 +79,6 @@ const Header = () => {
 
         {/* Search and Cart Icons and Trackoder icon*/}
         <div className="header-icons flex items-center gap-3">
-          
           {/* search icon */}
           <div className="search-container flex items-center gap-2">
             <CiSearch
@@ -89,30 +88,23 @@ const Header = () => {
             />
           </div>
 
-          
-          
           {/* shoping cart icon*/}
           <div>
             <Link href="/auth/cart" className="relative">
-          <CiShoppingCart
-            className="icon"
-            style={{ fontSize: "1.5rem" }}  
-            
-          />
-          </Link>
+              <CiShoppingCart className="icon" style={{ fontSize: "1.5rem" }} />
+            </Link>
           </div>
 
           {/*login icon */}
           <div>
-            <Link href="/login" className="relative">
-            <FiUser 
-            className="icon"
-            style={{ fontSize: "1.5rem"}}
-            />
-            
-            </Link>
+            {session ? (
+              <LogOut onClick={() => signOut().then(() => router.push("/login"))} className="icon" style={{ fontSize: "1.5rem" }} />
+            ) : (
+              <Link href="/login" className="relative">
+                <FiUser className="icon" style={{ fontSize: "1.5rem" }} />
+              </Link>
+            )}
           </div>
-
         </div>
       </nav>
 
@@ -121,7 +113,9 @@ const Header = () => {
         <div className="search-modal fixed top-0 right-0 w-96 h-full bg-white z-50 flex flex-col p-5 shadow-lg">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold">SEARCH PRODUCTS</h2>
-            <button onClick={closeSearch} className="text-2xl">×</button>
+            <button onClick={closeSearch} className="text-2xl">
+              ×
+            </button>
           </div>
 
           <div className="flex flex-col mt-5 gap-3">

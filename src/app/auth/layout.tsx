@@ -8,17 +8,11 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  console.log("Session data:", session);
-
   useEffect(() => {
-    if (status === "authenticated") {
-      if (session.user.role === "admin") {
-        router.push("/admin");
-      }
-    } else if (status === "unauthenticated") {
+    if (status === "unauthenticated") {
       router.push("/login");
     }
-  }, [status, session, router]);
+  }, [status, router]);
 
   if (status === "loading") {
     return (
@@ -28,7 +22,7 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  if (!session || session.user.role === "admin") {
+  if (!session) {
     return null;
   }
 
