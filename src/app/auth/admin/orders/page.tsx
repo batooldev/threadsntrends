@@ -301,6 +301,7 @@ export default function AdminOrdersPage() {
                       <TableHead>Product</TableHead>
                       <TableHead>Quantity</TableHead>
                       <TableHead>Price</TableHead>
+                      <TableHead>Size</TableHead> 
                       <TableHead className="text-right">Subtotal</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -313,6 +314,7 @@ export default function AdminOrdersPage() {
                         </TableCell>
                         <TableCell>{product.quantity}</TableCell>
                         <TableCell>${product.price.toFixed(2)}</TableCell>
+                        <TableCell>{product.size || 'N/A'}</TableCell> 
                         <TableCell className="text-right">
                           ${(product.quantity * product.price).toFixed(2)}
                         </TableCell>

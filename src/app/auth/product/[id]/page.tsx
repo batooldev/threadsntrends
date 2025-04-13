@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-// Define the product interface
+// Define the product interface to match the schema
 interface Product {
   _id: string;
   productID: string;
@@ -18,7 +18,7 @@ interface Product {
   category: string;
   images?: Array<string>;
   inStock: boolean;
-  size?: string;
+  sizes?: string[]; // Changed from size to sizes to match database schema
   stock: number;
   details?: {
     material?: string;
@@ -50,8 +50,8 @@ export default function ProductPage(): JSX.Element {
   const [activeTab, setActiveTab] = useState<string>("description");
   const router = useRouter();
 
-  // Available sizes
-  const sizes = ["XS", "S", "M", "L", "XL"];
+  // Default sizes with unstitched option
+  const defaultSizes = ["XS", "S", "M", "L", "XL", "Unstitched"];
 
   useEffect(() => {
     // Make sure we have an ID before fetching
@@ -68,8 +68,10 @@ export default function ProductPage(): JSX.Element {
 
         const data: Product = await response.json();
         setProduct(data);
-        if (data.size) {
-          setSelectedSize(data.size);
+        
+        // If product has sizes and there's at least one, set the first as selected
+        if (data.sizes && data.sizes.length > 0) {
+          setSelectedSize(data.sizes[0]);
         }
       } catch (err) {
         console.error("Error fetching product:", err);
@@ -126,7 +128,7 @@ export default function ProductPage(): JSX.Element {
           category: product.category || 'uncategorized',
           price: product.price,
           stock: product.stock,
-          size: selectedSize,
+          size: selectedSize, // This will be sent to the database
           image: product.images?.[0],
           quantity: 1
         }),
@@ -162,6 +164,16 @@ export default function ProductPage(): JSX.Element {
     setCurrentImageIndex(index);
   };
 
+  // Determine which sizes to show
+  const getSizesToShow = () => {
+    // If the product has specified sizes, use those
+    if (product?.sizes && product.sizes.length > 0) {
+      return product.sizes;
+    }
+    // Otherwise, use default sizes
+    return defaultSizes;
+  };
+
   if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -180,6 +192,8 @@ export default function ProductPage(): JSX.Element {
     );
 
   if (!product) return <div className="text-center py-10">Product not found</div>;
+
+  const sizesToShow = getSizesToShow();
 
   return (
     <div className="min-h-screen bg-white">
@@ -264,11 +278,13 @@ export default function ProductPage(): JSX.Element {
                 <div className="text-lg font-medium">SIZE: {selectedSize}</div>
               </div>
               
-              <div className="flex space-x-3">
-                {sizes.map((size) => (
+              <div className="flex flex-wrap gap-3">
+                {sizesToShow.map((size) => (
                   <button
                     key={size}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    className={`${
+                      size === "Unstitched" ? "px-4" : "w-10"
+                    } h-10 rounded-full flex items-center justify-center ${
                       selectedSize === size 
                         ? 'bg-gray-900 text-white' 
                         : 'bg-white border border-gray-300 text-gray-800'
@@ -284,7 +300,7 @@ export default function ProductPage(): JSX.Element {
             {/* Add to Cart Button */}
             <Button 
               onClick={handleAddToCart}
-              disabled={addingToCart} // Removed the inStock check to enable button
+              disabled={addingToCart} 
               className="w-full h-12 rounded-full bg-black hover:bg-gray-800 text-white"
             >
               {addingToCart ? 'ADDING...' : 'ADD TO CART'}

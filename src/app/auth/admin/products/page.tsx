@@ -18,7 +18,7 @@ interface ProductFormData {
 
 const MAX_IMAGES = 5;
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const AVAILABLE_SIZES = ["XS", "S", "M", "L", "XL"];
+const AVAILABLE_SIZES = ["Unstitched","XS", "S", "M", "L", "XL"];
 
 const ProductForm = () => {
   const [product, setProduct] = useState<ProductFormData>({

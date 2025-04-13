@@ -105,6 +105,7 @@ export default function Checkout() {
           name: item.name,
           quantity: item.quantity,
           price: item.price,
+          size: item.size 
         })),
         totalAmount: cart.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0) + 99,
         shippingCost: 99,
