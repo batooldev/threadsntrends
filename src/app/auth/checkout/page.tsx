@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function Checkout() {
+  const router = useRouter();
   const [billingAddress, setBillingAddress] = useState("same");
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -137,7 +139,7 @@ export default function Checkout() {
         });
         const data = await response.json();
         if (response.ok) {
-          // window.location.href = data.confirmationUrl;
+          router.push('/auth/success'); // Redirect to success page for COD
         } else {
           throw new Error(data.error || "Failed to create order");
         }
