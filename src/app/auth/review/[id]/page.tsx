@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
+import { useSession } from "next-auth/react";
 
 interface Review {
   _id: string;
@@ -16,10 +17,12 @@ interface Review {
   createdAt: string;
 }
 
-export default function Page() {
+export default function Page({ params }: { params: { id: string } }) {
   // 🔁 Replace with dynamic values as needed
-  const productID = "demo-product-id";
-  const currentUserID = "demo-user-id";
+  const productID = params.id;
+  const { data: session } = useSession();
+  console.log("Session", session);
+  const currentUserID = session?.user?.id;
 
   const [reviews, setReviews] = useState<Review[]>([]);
   const [rating, setRating] = useState(0);
@@ -35,7 +38,7 @@ export default function Page() {
   const fetchReviews = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/reviews?productID=${productID}`);
+      const res = await fetch(`/api/review?productID=${productID}`);
       const data = await res.json();
       setReviews(data.data || []);
     } catch (err) {
@@ -53,14 +56,24 @@ export default function Page() {
 
     setLoading(true);
     const method = editingId ? "PUT" : "POST";
-    const url = editingId ? `/api/reviews?id=${editingId}` : "/api/reviews";
-    const reviewPayload = { userID: currentUserID, productID, rating, comment };
+    const url = editingId ? `/api/review?id=${editingId}` : "/api/review";
+    // Include the user's email as name in the payload
+    const reviewPayload = { 
+      userID: currentUserID, 
+      productID, 
+      rating, 
+      comment,
+      userName: session?.user?.email?.split('@')[0] || 'Anonymous' // Use email username as display name
+    };
 
     try {
       if (!editingId) {
         const tempReview: Review = {
           _id: Math.random().toString(),
-          userID: { _id: currentUserID, name: "You" },
+          userID: { 
+            _id: currentUserID!, 
+            name: session?.user?.email?.split('@')[0] || 'Anonymous'  // Use email username for temp review
+          },
           productID,
           rating,
           comment,
@@ -94,7 +107,7 @@ export default function Page() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this review?")) return;
     try {
-      await fetch(`/api/reviews?id=${id}`, { method: "DELETE" });
+      await fetch(`/api/review?id=${id}`, { method: "DELETE" });
       setReviews(reviews.filter(r => r._id !== id));
     } catch (err) {
       setError("Failed to delete review.");
@@ -112,7 +125,7 @@ export default function Page() {
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-8 space-y-6">
+    <div className="max-w-xl mx-auto mt-8 space-y-6 w-full">
       <div className="p-4 border rounded-xl shadow-sm bg-white space-y-4">
         <h2 className="text-xl font-semibold">Write a Review</h2>
 

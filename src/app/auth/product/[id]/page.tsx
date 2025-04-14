@@ -28,8 +28,8 @@ interface Product {
 
 interface Review {
   _id: string;
-  userId: string;
-  username: string;
+  userID: { _id: string; name: string };
+  productID: string;
   rating: number;
   comment: string;
   createdAt: string;
@@ -94,14 +94,14 @@ export default function ProductPage(): JSX.Element {
   const fetchReviews = async () => {
     try {
       setReviewsLoading(true);
-      const response = await fetch(`/api/reviews/${id}`);
+      const response = await fetch(`/api/review?productID=${id}`);
       
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
       
       const data = await response.json();
-      setReviews(data);
+      setReviews(data.data || []);
     } catch (err) {
       console.error("Error fetching reviews:", err);
     } finally {
@@ -360,7 +360,7 @@ export default function ProductPage(): JSX.Element {
                       {reviews.map((review) => (
                         <div key={review._id} className="border-b pb-4">
                           <div className="flex items-center justify-between">
-                            <div className="font-medium">{review.username}</div>
+                            <div className="font-medium">{review.userID.name}</div>
                             <div className="text-sm text-gray-500">
                               {new Date(review.createdAt).toLocaleDateString()}
                             </div>
@@ -380,8 +380,19 @@ export default function ProductPage(): JSX.Element {
                       ))}
                     </div>
                   ) : (
-                    <div className="py-4 text-gray-600">No reviews yet.</div>
+                    <div className="py-4 text-center text-gray-600">
+                      No reviews yet.{' '}
+                      <Link href={`/auth/review/${id}`} className="text-blue-600 hover:underline">
+                        Be the first to review!
+                      </Link>
+                    </div>
                   )}
+                  
+                  <div className="mt-6">
+                    <Link href={`/auth/review/${id}`}>
+                      <Button className="w-full">Write a Review</Button>
+                    </Link>
+                  </div>
                 </TabsContent>
               </Tabs>
             </div>
