@@ -139,7 +139,7 @@ export default function Checkout() {
         });
         const data = await response.json();
         if (response.ok) {
-          router.push('/auth/success'); // Redirect to success page for COD
+          router.push(`/auth/success?orderId=${data.order._id}`);// Redirect to success page for COD
         } else {
           throw new Error(data.error || "Failed to create order");
         }

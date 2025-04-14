@@ -22,7 +22,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ 
       success: true, 
-      confirmationUrl: `/order-confirmation/${orderId}`
+      confirmationUrl: `/order-confirmation/${orderId}`,
+      order: newOrder  // ✅ Include full order here
     });
   } catch (error: any) {
     console.error('Error creating COD order:', error);
