@@ -218,7 +218,7 @@ const ProductForm = () => {
 
         <div>
           <label htmlFor="price" className="block text-gray-700 font-semibold mb-1">
-            Price (₹)
+            Price (Pkr)
           </label>
           <input
             type="number"
