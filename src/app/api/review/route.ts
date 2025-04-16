@@ -63,8 +63,8 @@ export async function POST(req: NextRequest) {
     const transformedReview = {
       ...populatedReview,
       userID: {
-        _id: populatedReview?.userID?._id || 'unknown',
-        name: userName || populatedReview?.userID?.name || 'Anonymous'
+        _id: (populatedReview as any)?.userID?._id || 'unknown',
+        name: userName || (populatedReview as any)?.userID?.name || 'Anonymous'
       }
     };
 

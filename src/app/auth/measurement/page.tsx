@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -29,11 +30,41 @@ const MultiStepForm = () => {
     knee: "",
   };
   const [formData, setFormData] = useState(initialFormData);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const validateNumericInput = (value: string, fieldName: string): boolean => {
+    if (value === '') return true; // Allow empty values (they're handled by required validation)
+    const numValue = Number(value);
+    if (isNaN(numValue) || !(/^\d*\.?\d*$/.test(value))) {
+      setErrors(prev => ({
+        ...prev,
+        [fieldName]: 'Only numbers are allowed'
+      }));
+      return false;
+    }
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[fieldName];
+      return newErrors;
+    });
+    return true;
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    
+    // Skip validation for non-numeric fields
+    if (['name', 'email', 'bodyType'].includes(name)) {
+      setFormData(prev => ({ ...prev, [name]: value }));
+      return;
+    }
+
+    // Validate numeric input
+    if (validateNumericInput(value, name)) {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const nextStep = () => setStep(step + 1);
@@ -112,6 +143,10 @@ const MultiStepForm = () => {
   // Validate if all required fields in the current step are filled
   useEffect(() => {
     const validateStep = () => {
+      if (Object.keys(errors).length > 0) {
+        setIsNextEnabled(false);
+        return;
+      }
       if (step === 1) {
         setIsNextEnabled(
           !!(
@@ -152,10 +187,58 @@ const MultiStepForm = () => {
     };
 
     validateStep();
-  }, [formData, step]);
+  }, [formData, step, errors]);
+
+  const renderNumericInput = (name: string, placeholder: string, required: boolean = true) => (
+    <div className="mt-2">
+      <input
+        type="text"
+        name={name}
+        placeholder={placeholder}
+        value={formData[name as keyof typeof formData]}
+        onChange={handleChange}
+        className={`w-full p-2 border rounded ${errors[name] ? 'border-red-500' : ''}`}
+        required={required}
+      />
+      {errors[name] && (
+        <p className="text-red-500 text-xs mt-1">{errors[name]}</p>
+      )}
+    </div>
+  );
+
+  const renderStep2 = () => (
+    <div>
+      <h2 className="text-xl font-bold">Step 2: Shirt Measurements</h2>
+      {renderNumericInput("chest", "Chest (cm)")}
+      {renderNumericInput("waist", "Waist (cm)")}
+      {renderNumericInput("hips", "Hips (cm)")}
+      {renderNumericInput("neck", "Neck (cm)")}
+      {renderNumericInput("shoulders", "Shoulders (cm)")}
+      {renderNumericInput("sleeveLength", "Sleeve Length (cm)")}
+      {renderNumericInput("shirtLength", "Shirt Length (cm)")}
+      {renderNumericInput("armhole", "Armhole (cm)")}
+      {renderNumericInput("wrist", "Wrist (cm)")}
+      <div className="flex justify-between mt-3">
+        <Button onClick={prevStep} className="bg-solid_brown text-white">
+          Back
+        </Button>
+        <Button
+          onClick={nextStep}
+          className={`p-2 rounded ${
+            isNextEnabled && Object.keys(errors).length === 0
+              ? "bg-solid_brown text-white"
+              : "bg-solid_brown text-gray-700 cursor-not-allowed"
+          }`}
+          disabled={!isNextEnabled || Object.keys(errors).length > 0}
+        >
+          Next
+        </Button>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="bg-rosy_pink min-h-screen opacity-95 flex items-center justify-center">
+    <div className="bg-rosy_pink min-h-screen w-full opacity-95 flex items-center justify-center">
       <div className="max-w-lg mx-auto p-5 bg-white shadow-lg rounded-lg mt-6 mb-5">
         {step === 1 && (
           <form>
@@ -264,166 +347,17 @@ const MultiStepForm = () => {
           </form>
         )}
 
-        {step === 2 && (
-          <div>
-            <h2 className="text-xl font-bold">Step 2: Shirt Measurements</h2>
-            <input
-              type="text"
-              name="chest"
-              placeholder="Chest (cm)"
-              value={formData.chest}
-              onChange={handleChange}
-              className="w-full p-2 border rounded mt-2"
-              required
-            />
-            <input
-              type="text"
-              name="waist"
-              placeholder="Waist (cm)"
-              value={formData.waist}
-              onChange={handleChange}
-              className="w-full p-2 border rounded mt-2"
-              required
-            />
-            <input
-              type="text"
-              name="hips"
-              placeholder="Hips (cm)"
-              value={formData.hips}
-              onChange={handleChange}
-              className="w-full p-2 border rounded mt-2"
-              required
-            />
-            <input
-              type="text"
-              name="neck"
-              placeholder="Neck (cm)"
-              value={formData.neck}
-              onChange={handleChange}
-              className="w-full p-2 border rounded mt-2"
-              required
-            />
-            <input
-              type="text"
-              name="shoulders"
-              placeholder="Shoulders (cm)"
-              value={formData.shoulders}
-              onChange={handleChange}
-              className="w-full p-2 border rounded mt-2"
-              required
-            />
-            <input
-              type="text"
-              name="sleeveLength"
-              placeholder="Sleeve Length (cm)"
-              value={formData.sleeveLength}
-              onChange={handleChange}
-              className="w-full p-2 border rounded mt-2"
-              required
-            />
-            <input
-              type="text"
-              name="shirtLength"
-              placeholder="Shirt Length (cm)"
-              value={formData.shirtLength}
-              onChange={handleChange}
-              className="w-full p-2 border rounded mt-2"
-              required
-            />
-            <input
-              type="text"
-              name="armhole"
-              placeholder="Armhole (cm)"
-              value={formData.armhole}
-              onChange={handleChange}
-              className="w-full p-2 border rounded mt-2"
-              required
-            />
-            <input
-              type="text"
-              name="wrist"
-              placeholder="Wrist (cm)"
-              value={formData.wrist}
-              onChange={handleChange}
-              className="w-full p-2 border rounded mt-2"
-              required
-            />
-            <div className="flex justify-between mt-3">
-              <Button onClick={prevStep} className="bg-solid_brown text-white">
-                Back
-              </Button>
-              <Button
-                onClick={nextStep}
-                className={`p-2 rounded ${
-                  isNextEnabled
-                    ? "bg-solid_brown text-white"
-                    : "bg-solid_brown text-gray-700 cursor-not-allowed"
-                }`}
-                disabled={!isNextEnabled}
-              >
-                Next
-              </Button>
-            </div>
-          </div>
-        )}
+        {step === 2 && renderStep2()}
 
         {step === 3 && (
           <div>
             <h2 className="text-xl font-bold">Step 3: Trouser Measurements</h2>
-            <input
-              type="text"
-              name="inseam"
-              placeholder="Inseam (cm)"
-              value={formData.inseam}
-              onChange={handleChange}
-              className="w-full p-2 border rounded mt-2"
-              required
-            />
-            <input
-              type="text"
-              name="thigh"
-              placeholder="Thigh (cm)"
-              value={formData.thigh}
-              onChange={handleChange}
-              className="w-full p-2 border rounded mt-2"
-              required
-            />
-            <input
-              type="text"
-              name="calf"
-              placeholder="Calf (cm)"
-              value={formData.calf}
-              onChange={handleChange}
-              className="w-full p-2 border rounded mt-2"
-              required
-            />
-            <input
-              type="text"
-              name="ankle"
-              placeholder="Ankle (cm)"
-              value={formData.ankle}
-              onChange={handleChange}
-              className="w-full p-2 border rounded mt-2"
-              required
-            />
-            <input
-              type="text"
-              name="trouserLength"
-              placeholder="Trouser Length (cm)"
-              value={formData.trouserLength}
-              onChange={handleChange}
-              className="w-full p-2 border rounded mt-2"
-              required
-            />
-            <input
-              type="text"
-              name="knee"
-              placeholder="Knee (cm)"
-              value={formData.knee}
-              onChange={handleChange}
-              className="w-full p-2 border rounded mt-2"
-              required
-            />
+            {renderNumericInput("inseam", "Inseam (cm)")}
+            {renderNumericInput("thigh", "Thigh (cm)")}
+            {renderNumericInput("calf", "Calf (cm)")}
+            {renderNumericInput("ankle", "Ankle (cm)")}
+            {renderNumericInput("trouserLength", "Trouser Length (cm)")}
+            {renderNumericInput("knee", "Knee (cm)")}
             <div className="flex justify-between mt-3">
               <Button onClick={prevStep} className="bg-solid_brown text-white">
                 Back
@@ -431,11 +365,11 @@ const MultiStepForm = () => {
               <Button
                 onClick={nextStep}
                 className={`p-2 rounded ${
-                  isNextEnabled
+                  isNextEnabled && Object.keys(errors).length === 0
                     ? "bg-solid_brown text-white"
                     : "bg-solid_brown text-gray-700 cursor-not-allowed"
                 }`}
-                disabled={!isNextEnabled}
+                disabled={!isNextEnabled || Object.keys(errors).length > 0}
               >
                 Next
               </Button>

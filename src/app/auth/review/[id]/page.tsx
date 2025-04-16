@@ -18,7 +18,7 @@ interface Review {
 }
 
 export default function Page({ params }: { params: { id: string } }) {
-  // 🔁 Replace with dynamic values as needed
+  
   const productID = params.id;
   const { data: session } = useSession();
   console.log("Session", session);

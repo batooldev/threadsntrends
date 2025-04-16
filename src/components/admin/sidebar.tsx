@@ -30,6 +30,12 @@ export default function AdminSidebar() {
               <div className="">Contact</div>
             </Link>
           </li>
+
+          <li>
+            <Link href="/auth/admin/inventory">
+              <div className="">Inventory</div> 
+            </Link>
+          </li>
         </ul>
       </nav>
     </aside>

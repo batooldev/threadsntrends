@@ -7,7 +7,7 @@ const AddressSchema = new Schema({
   apartment: String,
   city: { type: String, required: true },
   postalCode: String,
-  phone: { type: String, required: true },
+  phone: { type: Number, required: true },
 });
 
 const OrderSchema = new mongoose.Schema(

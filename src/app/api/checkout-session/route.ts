@@ -26,6 +26,36 @@ export async function POST(req: Request) {
       quantity: item.quantity,
     }));
 
+    // Create metadata object with all required fields
+    const metadata: { [key: string]: string } = {
+      order_id: Date.now().toString(),
+      customerName: data.customerName,
+      customerEmail: data.customerEmail,
+      // Shipping Address
+      shipping_firstName: data.shippingAddress.firstName,
+      shipping_lastName: data.shippingAddress.lastName,
+      shipping_address: data.shippingAddress.address,
+      shipping_city: data.shippingAddress.city,
+      shipping_postalCode: data.shippingAddress.postalCode,
+      shipping_phone: data.shippingAddress.phone,
+      // Billing Address
+      billing_firstName: data.billingAddress.firstName,
+      billing_lastName: data.billingAddress.lastName,
+      billing_address: data.billingAddress.address,
+      billing_city: data.billingAddress.city,
+      billing_postalCode: data.billingAddress.postalCode,
+      billing_phone: data.billingAddress.phone,
+      // Additional Order Details
+      shippingCost: data.shippingCost.toString(),
+      totalAmount: data.totalAmount.toString(),
+      paymentMethod: data.paymentMethod,
+    };
+
+    // Add size information for each product
+    data.products.forEach((product: any, index: number) => {
+      metadata[`product_${index}_size`] = product.size;
+    });
+
     // Create the checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -33,10 +63,10 @@ export async function POST(req: Request) {
       mode: 'payment',
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cart`,
-      // You can add metadata to track the order
-      metadata: {
-        order_id: Date.now().toString(),
-      },
+      metadata,
+      shipping_address_collection: { allowed_countries: ['PK'] },
+      billing_address_collection: 'required',
+      customer_email: data.customerEmail,
     });
 
     return NextResponse.json({ url: session.url });
