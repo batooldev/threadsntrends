@@ -1,3 +1,4 @@
+
 "use client";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -202,7 +203,7 @@ const Cart = () => {
                   <p className="text-gray-500">${item.price} each</p>
                   {item.size && <p className="text-gray-400 text-sm">Size: {item.size}</p>}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2  ml-4">
                   <Button variant="outline" size="icon" onClick={() => decreaseQuantity(item._id)}>
                     <Minus size={16} />
                   </Button>
@@ -211,9 +212,12 @@ const Cart = () => {
                     <Plus size={16} />
                   </Button>
                 </div>
+                <div className="flex items-center ml-4">
                 <Button variant="destructive" size="icon" onClick={() => removeItem(item._id)}>
                   <Trash size={16} />
                 </Button>
+                
+              </div>
               </div>
             ))}
             <div className="flex justify-between items-center mt-4">
