@@ -1,18 +1,41 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Trash, Minus, Plus, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 
+// Add type for cart items
+interface CartItem {
+  _id: string;
+  userId: string;
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  size: string;
+  image: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const Cart = () => {
-  const [cart, setCart] = useState([]);
+  const { data: session } = useSession();
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchCart = async () => {
       try {
-        const userId = "67c59a3b1eeafc3be590e110"; // This should ideally come from auth context
+        if (!session?.user?.id) {
+          setLoading(false);
+          return;
+        }
+
+        // Use the correct user ID format from session
+        const userId = "67c59a3b1eeafc3be590e110"; // This should match your MongoDB user ID
+        console.log("Fetching cart with userId:", userId);
         const response = await fetch(`/api/cart?userId=${userId}`);
         
         if (!response.ok) {
@@ -20,7 +43,16 @@ const Cart = () => {
         }
         
         const data = await response.json();
-        setCart(data.cartItems);
+        console.log("Cart API response:", data);
+        
+        if (data.cartItems && Array.isArray(data.cartItems)) {
+          console.log("Cart items found:", data.cartItems.length);
+          setCart(data.cartItems);
+        } else {
+          console.error("Invalid cart data structure:", data);
+          setCart([]);
+        }
+        
         setLoading(false);
       } catch (err: any) {
         console.error("Error fetching cart:", err);
@@ -29,11 +61,17 @@ const Cart = () => {
       }
     };
 
-    fetchCart();
-  }, []);
+    if (session) {
+      fetchCart();
+    } else {
+      setLoading(false);
+    }
+  }, [session]);
 
   const increaseQuantity = async (id: string) => {
     try {
+      if (!session?.user?.id) return;
+      console.log("Increasing quantity for item:", id);
       const response = await fetch(`/api/cart`, {
         method: "PUT",
         headers: {
@@ -44,6 +82,9 @@ const Cart = () => {
           action: "increase" 
         }),
       });
+
+      const result = await response.json();
+      console.log("Increase quantity result:", result);
 
       if (response.ok) {
         setCart((prevCart: any) =>
@@ -59,6 +100,8 @@ const Cart = () => {
 
   const decreaseQuantity = async (id: string) => {
     try {
+      if (!session?.user?.id) return;
+      console.log("Decreasing quantity for item:", id);
       const response = await fetch(`/api/cart`, {
         method: "PUT",
         headers: {
@@ -69,6 +112,9 @@ const Cart = () => {
           action: "decrease" 
         }),
       });
+
+      const result = await response.json();
+      console.log("Decrease quantity result:", result);
 
       if (response.ok) {
         setCart((prevCart: any) =>
@@ -84,6 +130,8 @@ const Cart = () => {
 
   const removeItem = async (id: string) => {
     try {
+      if (!session?.user?.id) return;
+      console.log("Removing item:", id);
       const response = await fetch(`/api/cart`, {
         method: "DELETE",
         headers: {
@@ -91,6 +139,9 @@ const Cart = () => {
         },
         body: JSON.stringify({ itemId: id }),
       });
+
+      const result = await response.json();
+      console.log("Remove item result:", result);
 
       if (response.ok) {
         setCart((prevCart: any) => prevCart.filter((item: any) => item._id !== id));
@@ -114,6 +165,14 @@ const Cart = () => {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <p>Error loading cart: {error}</p>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p>Please log in to view your cart</p>
       </div>
     );
   }

@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { useSession } from "next-auth/react";
 
 const MultiStepForm = () => {
+  const { data: session } = useSession();
   const [step, setStep] = useState(1);
   const [isNextEnabled, setIsNextEnabled] = useState(false);
   const initialFormData = {
@@ -73,10 +75,14 @@ const MultiStepForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!session?.user?.id) {
+      alert('You must be logged in to submit measurements');
+      return;
+    }
+
     // Transform form data to match the Mongoose schema structure
     const transformedData = {
-      // Assuming you have a way to get the userID
-      userID: "64f5b3d7e330b9001af30c52", // Replace with actual user ID from your auth system
+      userID: session.user.id,
       name: formData.name,
       email: formData.email,
       height: {
