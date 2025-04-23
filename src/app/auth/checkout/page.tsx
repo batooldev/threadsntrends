@@ -62,14 +62,47 @@ export default function Checkout() {
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
+    
+    // Phone number validation
+    if (name === 'phone' || name === 'billingPhone') {
+      // Only allow digits
+      const numbersOnly = value.replace(/[^\d]/g, '');
+      
+      // Limit to 11 digits
+      if (numbersOnly.length <= 11) {
+        setFormData(prev => ({
+          ...prev,
+          [name]: numbersOnly
+        }));
+      }
+      return;
+    }
+
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
   };
 
+  const isValidPhoneNumber = (phone: string) => {
+    const phoneRegex = /^[0-9]{11}$/; // Exactly 11 digits
+    return phoneRegex.test(phone);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate phone number before submission
+    if (!isValidPhoneNumber(formData.phone)) {
+      alert('Please enter a valid 11-digit phone number');
+      return;
+    }
+
+    if (billingAddress === "different" && !isValidPhoneNumber(formData.billingPhone)) {
+      alert('Please enter a valid 11-digit billing phone number');
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -184,14 +217,37 @@ export default function Checkout() {
         <Card>
           <CardContent className="p-6 space-y-4">
             <h2 className="text-lg font-semibold">Delivery</h2>
-            <Select>
+            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, city: value }))}>
               <SelectTrigger className="border-red-500">
                 <SelectValue placeholder="Select city from dropdown" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent 
+                position="popper"
+                sideOffset={5}
+                align="start"
+                className="max-h-[200px] overflow-y-auto z-50"
+              
+              >
                 <SelectItem value="lahore">Lahore</SelectItem>
                 <SelectItem value="karachi">Karachi</SelectItem>
                 <SelectItem value="islamabad">Islamabad</SelectItem>
+                <SelectItem value="rawalpindi">Rawalpindi</SelectItem>
+                <SelectItem value="faisalabad">Faisalabad</SelectItem>
+                <SelectItem value="multan">Multan</SelectItem>
+                <SelectItem value="gujranwala">Gujranwala</SelectItem>
+                <SelectItem value="peshawar">Peshawar</SelectItem>
+                <SelectItem value="quetta">Quetta</SelectItem>
+                <SelectItem value="sialkot">Sialkot</SelectItem>
+                <SelectItem value="bahawalpur">Bahawalpur</SelectItem>
+                <SelectItem value="sargodha">Sargodha</SelectItem>
+                <SelectItem value="gujrat">Gujrat</SelectItem>
+                <SelectItem value="hyderabad">Hyderabad</SelectItem>
+                <SelectItem value="sukkur">Sukkur</SelectItem>
+                <SelectItem value="larkana">Larkana</SelectItem>
+                <SelectItem value="sheikhupura">Sheikhupura</SelectItem>
+                <SelectItem value="bhimber">Bhimber</SelectItem>
+                <SelectItem value="mirpur">Mirpur</SelectItem>
+                <SelectItem value="muzaffarabad">Muzaffarabad</SelectItem>
               </SelectContent>
             </Select>
             <Input 
@@ -268,19 +324,27 @@ export default function Checkout() {
               onValueChange={(value) => setFormData(prev => ({ ...prev, paymentMethod: value }))}
               className="space-y-3"
             >
-              <div className="flex items-center space-x-3 border p-3 rounded-md">
-                <RadioGroupItem value="card" id="card" />
-                <label htmlFor="card" className="flex-1 text-sm">
-                  Debit - Credit Card
-                </label>
+              <div className="flex items-center justify-between border p-3 rounded-md">
+                <div className="flex items-center space-x-3">
+                  <RadioGroupItem value="card" id="card" />
+                  <label htmlFor="card" className="text-sm">
+                    Debit - Credit Card
+                  </label>
+                </div>
                 <img src="/visa-mastercard.png" alt="Visa and MasterCard" className="h-5" />
               </div>
-              <div className="flex items-center space-x-3 border p-3 rounded-md">
-                <RadioGroupItem value="cod" id="cod" />
-                <label htmlFor="cod" className="flex-1 text-sm">
-                  Cash on Delivery (COD)
-                </label>
-                <p>COD not available for international clients</p>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between border p-3 rounded-md">
+                  <div className="flex items-center space-x-3">
+                    <RadioGroupItem value="cod" id="cod" />
+                    <label htmlFor="cod" className="text-sm">
+                      Cash on Delivery (COD)
+                    </label>
+                  </div>
+                </div>
+                {formData.paymentMethod === 'cod' && (
+                  <p className="text-sm text-red-500 pl-8">COD not available for international clients</p>
+                )}
               </div>
             </RadioGroup>
           </CardContent>
@@ -392,8 +456,6 @@ export default function Checkout() {
               <span>Total</span>
               <span>PKR Rs {(cart.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0) + 99).toFixed(2)}</span>
             </div>
-            <Input placeholder="Discount code" />
-            <Button className="w-full">Apply</Button>
           </CardContent>
         </Card>
       </div>
