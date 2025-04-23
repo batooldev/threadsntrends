@@ -60,21 +60,30 @@ export default function Checkout() {
     fetchCart();
   }, []);
 
+  const formatPhoneNumber = (phoneNumber: string) => {
+    if (phoneNumber.length === 11) {
+      return `+92 ${phoneNumber.slice(0, 4)}-${phoneNumber.slice(4)}`;
+    }
+    return phoneNumber;
+  };
+
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
     
     // Phone number validation
     if (name === 'phone' || name === 'billingPhone') {
-      // Only allow digits
-      const numbersOnly = value.replace(/[^\d]/g, '');
+      // Remove all non-digits including the +92 prefix
+      const rawValue = value.replace(/\D/g, '');
       
-      // Limit to 11 digits
-      if (numbersOnly.length <= 11) {
-        setFormData(prev => ({
-          ...prev,
-          [name]: numbersOnly
-        }));
-      }
+      // Remove 92 from the beginning if present
+      const cleanNumber = rawValue.startsWith('92') ? rawValue.slice(2) : rawValue;
+      
+      // Limit to 11 digits and update state
+      const finalNumber = cleanNumber.slice(0, 11);
+      setFormData(prev => ({
+        ...prev,
+        [name]: finalNumber
+      }));
       return;
     }
 
@@ -294,9 +303,9 @@ export default function Checkout() {
             </div>
             <Input 
               name="phone"
-              value={formData.phone}
+              value={formatPhoneNumber(formData.phone)}
               onChange={handleInputChange}
-              placeholder="Phone" 
+              placeholder="Phone (e.g., +92 0300-1234567)" 
               required
             />
           </CardContent>
@@ -427,9 +436,9 @@ export default function Checkout() {
                 </div>
                 <Input 
                   name="billingPhone"
-                  value={formData.billingPhone}
+                  value={formatPhoneNumber(formData.billingPhone)}
                   onChange={handleInputChange}
-                  placeholder="Phone (optional)" 
+                  placeholder="Phone (e.g., +92 0300-1234567)" 
                 />
               </div>
             )}
