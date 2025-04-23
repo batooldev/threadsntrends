@@ -75,7 +75,7 @@ export default function TailorServices() {
           Click below to begin your precise measurement process with ease.
         </p>
         <div>
-         <Link href="/auth/measurement"> <Button className="bg-rosy_pink text-gray-700 px-10 py-4 text-lg font-medium rounded-full shadow-lg hover:bg-gray-100 transition-all">
+         <Link href="/auth/measurement"> <Button className="bg-light_brown text-gray-700 px-10 py-4 text-lg font-medium rounded-full shadow-lg hover:bg-gray-100 transition-all">
             Get Started
           </Button> </Link>
         </div>
