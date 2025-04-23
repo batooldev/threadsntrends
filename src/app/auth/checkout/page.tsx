@@ -331,7 +331,7 @@ export default function Checkout() {
                     Debit - Credit Card
                   </label>
                 </div>
-                <img src="/visa-mastercard.png" alt="Visa and MasterCard" className="h-5" />
+                <img src="/images/visa-mastercard.jpg" alt="Visa and MasterCard" className="h-5" />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between border p-3 rounded-md">
