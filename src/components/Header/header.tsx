@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "next-auth/react";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 interface Product {
   _id: string;
@@ -18,8 +19,21 @@ interface Product {
   category: string;
   stock: number;
   isFeatured: boolean;
-  images: string[]; //  Fix: Ensure images is an array of strings (URLs)
+  images: string[];
   size: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface CartItem {
+  _id: string;
+  userId: string;
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  size: string;
+  image: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -28,8 +42,10 @@ const Header = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [cartItemCount, setCartItemCount] = useState(0);
   const { data: session } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
   const toggleSearch = () => setShowSearch(!showSearch);
   const closeSearch = () => setShowSearch(false);
 
@@ -53,6 +69,84 @@ const Header = () => {
     const delaySearch = setTimeout(fetchResults, 300); // Delay search for better UX
     return () => clearTimeout(delaySearch);
   }, [searchQuery]);
+
+  // Function to fetch cart count
+  const fetchCartCount = async () => {
+    try {
+      if (!session?.user?.id) {
+        setCartItemCount(0);
+        return;
+      }
+
+      const userId = session.user.id;
+      const response = await fetch(`/api/cart?userId=${userId}`, {
+        // Adding cache: 'no-store' to prevent caching
+        // This ensures we always get fresh data
+        cache: 'no-store'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch cart items');
+      }
+      
+      const data = await response.json();
+      
+      if (data.cartItems && Array.isArray(data.cartItems)) {
+        setCartItemCount(data.cartItems.length);
+      } else {
+        setCartItemCount(0);
+      }
+    } catch (err) {
+      console.error("Error fetching cart count:", err);
+      setCartItemCount(0);
+    }
+  };
+
+  // Fetch cart items count whenever session changes
+  useEffect(() => {
+    if (session) {
+      fetchCartCount();
+    } else {
+      setCartItemCount(0);
+    }
+  }, [session]);
+
+  // Refetch cart count on page changes
+  useEffect(() => {
+    if (session) {
+      fetchCartCount();
+    }
+  }, [pathname, session]);
+
+  // Set up an interval to periodically check for cart updates
+  useEffect(() => {
+    // Only set up the interval if the user is logged in
+    if (!session?.user?.id) return;
+    
+    // Check for cart updates every 5 seconds
+    const intervalId = setInterval(fetchCartCount, 5000);
+    
+    // Clean up the interval when component unmounts
+    return () => clearInterval(intervalId);
+  }, [session]);
+
+  // Listen for custom cart update events
+  useEffect(() => {
+    // Function to handle cart update events
+    const handleCartUpdate = () => {
+      if (session?.user?.id) {
+        fetchCartCount();
+      }
+    };
+
+    // Add event listener for cart updates
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    
+    // Clean up event listener on unmount
+    return () => {
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+    };
+  }, [session]);
 
   return (
     <div>
@@ -88,10 +182,14 @@ const Header = () => {
             />
           </div>
 
-          {/* shoping cart icon*/}
-          <div>
-            <Link href="/auth/cart" className="relative">
+          {/* shopping cart icon with badge */}
+          <div className="relative">
+            <Link href="/auth/cart">
               <CiShoppingCart className="icon" style={{ fontSize: "1.5rem" }} />
+              {/* Always show the badge, even when count is 0 */}
+              <span className="absolute -top-2 -right-2 bg-light_brown text-white text-xs w-4 h-5 flex items-center justify-center rounded-full">
+                {cartItemCount}
+              </span>
             </Link>
           </div>
 
@@ -152,4 +250,5 @@ const Header = () => {
     </div>
   );
 };
+
 export default Header;

@@ -92,6 +92,9 @@ const Cart = () => {
             item._id === id ? { ...item, quantity: item.quantity + 1 } : item
           )
         );
+        
+        // Dispatch custom event when cart is updated
+        window.dispatchEvent(new Event('cartUpdated'));
       }
     } catch (error) {
       console.error("Error updating quantity:", error);
@@ -122,6 +125,9 @@ const Cart = () => {
             item._id === id && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item
           )
         );
+        
+        // Dispatch custom event when cart is updated
+        window.dispatchEvent(new Event('cartUpdated'));
       }
     } catch (error) {
       console.error("Error updating quantity:", error);
@@ -145,6 +151,9 @@ const Cart = () => {
 
       if (response.ok) {
         setCart((prevCart: any) => prevCart.filter((item: any) => item._id !== id));
+        
+        // Dispatch custom event when cart is updated
+        window.dispatchEvent(new Event('cartUpdated'));
       }
     } catch (error) {
       console.error("Error removing item:", error);
@@ -179,7 +188,7 @@ const Cart = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen py-10">
-      <div className="max-w-3xl w-full bg-white p-6 rounded-lg shadow-md relative">
+      <div className="max-w-3xl w-full bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
           <ShoppingCart /> Your Cart
         </h2>
@@ -209,7 +218,7 @@ const Cart = () => {
                     onClick={() => decreaseQuantity(item._id)}
                     style={{ borderColor: 'var(--light_brown)', color: 'var(--light_brown)' }}
                   >
-                    <Minus size={16} />
+                    <Minus className="text-light_brown" size={16} />
                   </Button>
                   <span className="w-8 text-center">{item.quantity || 1}</span>
                   <Button 
@@ -218,37 +227,36 @@ const Cart = () => {
                     onClick={() => increaseQuantity(item._id)}
                     style={{ borderColor: 'var(--light_brown)', color: 'var(--light_brown)' }}
                   >
-                    <Plus size={16} />
+                    <Plus className="text-light_brown" size={16} />
                   </Button>
                 </div>
                 <div className="flex items-center ml-4">
                   <Button 
-                    variant="destructive" 
+                    variant="outline" 
                     size="icon" 
                     onClick={() => removeItem(item._id)}
-                    style={{ backgroundColor: 'var(--light_brown)', borderColor: 'var(--light_brown)' }}
+                    style={{ borderColor: 'var(--light_brown)', color: 'var(--light_brown)' }}
                   >
-                    <Trash size={16} />
+                    <Trash className="text-light_brown" size={16} />
                   </Button>
                 </div>
               </div>
             ))}
             <div className="flex justify-between items-center mt-4">
               <h3 className="text-lg font-bold">Total: RS {totalPrice.toFixed(2)}</h3>
+              
               <Link href={`/auth/checkout`}>
                 <Button 
-                  variant="default" 
-                  style={{ backgroundColor: 'var(--light_brown)', borderColor: 'var(--light_brown)' }}
+                  variant="default"
+                  className="bg-light_brown hover:bg-light_brown/90 text-white"
                 >
                   Proceed to Checkout
                 </Button>
               </Link>
+              
             </div>
           </div>
         )}
-        <div className="absolute top-2 right-2 bg-light_brown text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-          {cart.length > 0 ? cart.length : 0}
-        </div>
       </div>
     </div>
   );
