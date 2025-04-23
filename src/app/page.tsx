@@ -17,7 +17,7 @@ export default function AboutUs() {
             "Discover the latest boutique arrivals at Threads N Trends! Our exclusive collection showcases elegant and unique designs, 
             perfect for elevating your style with sophistication and charm."
             </p>
-            <Link href="Product">
+            <Link href="/auth">
             <button className="bg-[#D19E61] hover:bg-[#A67B5B] text-white px-6 py-3 rounded-lg shadow-md mt-4">
               Shop Now
             </button>
@@ -61,7 +61,7 @@ export default function AboutUs() {
             <div className="w-full h-full bg-cover bg-center transform hover:scale-105 transition-transform duration-300" style={{ backgroundImage: "url('/images/p15.webp')" }}></div>
             </div>
             <h3 className="text-lg font-medium tracking-wide text-gray-800">Women</h3>
-            <button className="underline text-[#D19E61] hover:text-[#A67B5B]">Shop Here</button>
+        <Link href={"auth"}>    <button className="underline text-[#D19E61] hover:text-[#A67B5B]">Shop Here</button> </Link>
           </div>
              
               {/* second image */}
@@ -70,7 +70,7 @@ export default function AboutUs() {
             <div className="w-full h-full bg-cover bg-center transform hover:scale-105 transition-transform duration-300" style={{ backgroundImage: "url('/images/Men.jfif')" }}></div>
            </div>
             <h3 className="text-lg font-medium tracking-wide text-gray-800">Men</h3>
-            <button className="underline text-[#D19E61] hover:text-[#A67B5B]">Shop Here</button>
+        <Link href={"auth"}>   <button className="underline text-[#D19E61] hover:text-[#A67B5B]">Shop Here</button> </Link> 
           </div>
 
            {/* third image */}
@@ -79,7 +79,7 @@ export default function AboutUs() {
             <div className="w-full h-full bg-cover bg-center transform hover:scale-105 transition-transform duration-300" style={{ backgroundImage: "url('/images/event.jfif')" }}></div>
             </div>
             <h3 className="text-lg font-medium tracking-wide text-gray-800">Events</h3>
-            <button className="underline text-[#D19E61] hover:text-[#A67B5B]">Sign Up Here</button>
+         <Link href="/auth">   <button className="underline text-[#D19E61] hover:text-[#A67B5B]">Shop Here</button></Link>
           </div>
 
         </div>
@@ -95,7 +95,7 @@ export default function AboutUs() {
               Threads N Trends is your destination for boutique fashion with a personalized touch.
               Explore our curated collection every season, and follow us for the latest trends.
             </p>
-            <Link href="Product">
+            <Link href="/auth">
             <button className="bg-[#D19E61] hover:bg-[#A67B5B] text-white px-6 py-3 mt-4 rounded-lg">
               Shop Now
             </button>
