@@ -6,8 +6,12 @@ import Order from '@/lib/orders';
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   await dbConnect();
 
-  const order = await Order.findById(params.id);
-  if (!order) return new NextResponse('Order not found', { status: 404 });
+  // Change from findById to findOne with orderID
+  console.log("Fetching order with ID:", params.id);
+  const order = await Order.findOne({ orderID: params.id });
+  if (!order) {
+    return new NextResponse('Order not found', { status: 404 });
+  }
 
   const pdfDoc = await PDFDocument.create();
   const page = pdfDoc.addPage([595, 842]); // A4 size
@@ -30,7 +34,7 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
   drawText('Invoice', 350, 20, boldFont);
   y -= 25;
   drawText('Invoice #:', 350, 12, boldFont);
-  drawText(`${order._id}`, 430);
+  drawText(`${order.orderID}`, 430);
   y -= 15;
   drawText('Date:', 350, 12, boldFont);
   drawText(`${new Date(order.createdAt).toDateString()}`, 400);
@@ -112,7 +116,7 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
   return new NextResponse(pdfBytes, {
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename=invoice-${order._id}.pdf`,
+      'Content-Disposition': `attachment; filename=invoice-${order.orderID}.pdf`,
     },
   });
 }

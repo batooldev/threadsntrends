@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSession } from "next-auth/react";
 
 // Define the product interface to match the schema
 interface Product {
@@ -38,6 +39,7 @@ interface Review {
 export default function ProductPage(): JSX.Element {
   const params = useParams();
   const id = params.id as string;
+  const { data: session } = useSession();
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -121,7 +123,7 @@ export default function ProductPage(): JSX.Element {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId: "67c59a3b1eeafc3be590e110",
+          userId: session?.user?.id,
           productId: product._id,
           name: product.name,
           description: product.description,

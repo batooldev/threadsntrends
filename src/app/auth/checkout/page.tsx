@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useSession } from "next-auth/react";
 
 export default function Checkout() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [billingAddress, setBillingAddress] = useState("same");
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +40,7 @@ export default function Checkout() {
   useEffect(() => {
     const fetchCart = async () => {
       try {
-        const userId = "67c59a3b1eeafc3be590e110";
+        const userId = session?.user?.id;
         const response = await fetch(`/api/cart?userId=${userId}`);
         
         if (!response.ok) {
@@ -115,7 +117,6 @@ export default function Checkout() {
       };
 
       if (formData.paymentMethod === "card") {
-        // For card payments, create Stripe checkout session
         const response = await fetch("/api/checkout-session", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -125,8 +126,8 @@ export default function Checkout() {
           }),
         });
         const data = await response.json();
-        if (response.ok) {
-          window.location.href = data.url;
+        if (response.ok && data.url) {
+          window.location.href = data.url; // Direct redirect to Stripe
         } else {
           throw new Error(data.error || "Failed to create payment session");
         }
@@ -139,7 +140,8 @@ export default function Checkout() {
         });
         const data = await response.json();
         if (response.ok) {
-          router.push(`/auth/success?orderId=${data.order._id}`);// Redirect to success page for COD
+          console.log("data: ", data);
+          router.push(`/auth/success?orderId=${data.order.orderID}`); // Change to use orderID instead of _id
         } else {
           throw new Error(data.error || "Failed to create order");
         }

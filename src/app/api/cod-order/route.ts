@@ -20,10 +20,14 @@ export async function POST(req: Request) {
 
     await newOrder.save();
 
+    console.log('Order created successfully:', newOrder);
     return NextResponse.json({ 
       success: true, 
       confirmationUrl: `/order-confirmation/${orderId}`,
-      order: newOrder  // ✅ Include full order here
+      order: {
+        _id: newOrder._id,
+        orderID: orderId // Add this to response
+      }
     });
   } catch (error: any) {
     console.error('Error creating COD order:', error);

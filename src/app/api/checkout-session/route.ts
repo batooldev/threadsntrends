@@ -26,9 +26,12 @@ export async function POST(req: Request) {
       quantity: item.quantity,
     }));
 
+    // Generate order ID first
+    const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+    
     // Create metadata object with all required fields
     const metadata: { [key: string]: string } = {
-      order_id: Date.now().toString(),
+      order_id: orderId,
       customerName: data.customerName,
       customerEmail: data.customerEmail,
       // Shipping Address
@@ -61,7 +64,7 @@ export async function POST(req: Request) {
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/success?session_id={CHECKOUT_SESSION_ID}&orderId=${orderId}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cart`,
       metadata,
       shipping_address_collection: { allowed_countries: ['PK'] },

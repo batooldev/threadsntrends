@@ -29,6 +29,9 @@ export async function POST(req: Request) {
     try {
       await connectDB();
       
+      // Use the order ID from metadata
+      const orderId = session.metadata.order_id;
+
       // Retrieve the session with line items
       const retrievedSession = await stripe.checkout.sessions.retrieve(session.id, {
         expand: ['line_items'],
@@ -37,7 +40,6 @@ export async function POST(req: Request) {
       console.log("Retrieved Session: ", retrievedSession); // Fixed typo
 
       const lineItems = retrievedSession?.line_items?.data || [];
-      const orderId = `ORD-${uuidv4().substring(0, 8).toUpperCase()}`;
       const totalAmount = session.amount_total / 100;
 
       // Get metadata from the session
@@ -51,10 +53,10 @@ export async function POST(req: Request) {
         city: session.customer_details?.address?.city || 'Not provided',
         state: session.customer_details?.address?.state || 'Not provided',
         postalCode: session.customer_details?.address?.postal_code || 'Not provided',
-        phone: session.customer_details?.phone || 'Not provided'
+        phone: session.customer_details?.phone?.toString() || 'Not provided' // Convert to string
       };
-
-      // Use billing address for shipping if shipping details not provided
+      
+      // Create shipping address with string phone
       const shippingAddress = {
         firstName: billingAddress.firstName,
         lastName: billingAddress.lastName,
@@ -62,7 +64,7 @@ export async function POST(req: Request) {
         city: billingAddress.city,
         state: billingAddress.state,
         postalCode: billingAddress.postalCode,
-        phone: billingAddress.phone
+        phone: billingAddress.phone.toString() // Convert to string
       };
 
       // Map line items to products
@@ -83,11 +85,21 @@ export async function POST(req: Request) {
         products,
         totalAmount,
         paymentMethod: 'card',
-        status: 'processing'
+        status: 'processing',
+        stripe: {
+          sessionId: session.id,
+          paymentIntentId: session.payment_intent
+        }
       });
       
       await newOrder.save();
       console.log(`💰 Order ${orderId} saved successfully!`);
+
+      // After saving the order, return success with order ID
+      return NextResponse.json({ 
+        received: true,
+        orderId: orderId
+      });
     } catch (error) {
       console.error('Error saving order to database:', error);
       // Add more detailed error logging

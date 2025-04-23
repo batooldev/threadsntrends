@@ -1,11 +1,50 @@
 "use client";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 
 export default function SuccessPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const orderId = searchParams.get("orderId"); // ✅ gets the orderId from URL
+  const [orderId, setOrderId] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const sessionId = searchParams.get("session_id");
+    const directOrderId = searchParams.get("orderId");
+
+    // If we have a direct order ID (from COD), use it
+    if (directOrderId) {
+      setOrderId(directOrderId);
+      return;
+    }
+
+    // If we have a session ID (from Stripe), poll for order confirmation
+    if (sessionId) {
+      let attempts = 0;
+      const maxAttempts = 10;
+
+      const pollOrderStatus = async () => {
+        try {
+          const response = await fetch(`/api/order-status?session_id=${orderId ? orderId : sessionId}`);
+          const data = await response.json();
+          
+          if (data.orderId) {
+            setOrderId(data.orderId);
+            return;
+          }
+          
+          attempts++;
+          if (attempts < maxAttempts) {
+            setTimeout(pollOrderStatus, 2000);
+          }
+        } catch (error) {
+          console.error('Error checking order status:', error);
+        }
+      };
+
+      pollOrderStatus();
+    }
+  }, [searchParams]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
@@ -20,6 +59,7 @@ export default function SuccessPage() {
             if (!orderId) return;
         
             try {
+              // orderId is already the orderID string
               const res = await fetch(`/api/invoice/${orderId}`);
               if (!res.ok) throw new Error("Failed to fetch invoice.");
         

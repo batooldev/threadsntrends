@@ -1,4 +1,3 @@
-
 "use client";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -35,7 +34,7 @@ const Cart = () => {
         }
 
         // Use the correct user ID format from session
-        const userId = "67c59a3b1eeafc3be590e110"; // This should match your MongoDB user ID
+        const userId = session?.user?.id; // This should match your MongoDB user ID
         console.log("Fetching cart with userId:", userId);
         const response = await fetch(`/api/cart?userId=${userId}`);
         
@@ -200,7 +199,7 @@ const Cart = () => {
                 />
                 <div className="flex-1 ml-4">
                   <h3 className="font-semibold">{item.name}</h3>
-                  <p className="text-gray-500">${item.price} each</p>
+                  <p className="text-gray-500">RS {item.price} each</p>
                   {item.size && <p className="text-gray-400 text-sm">Size: {item.size}</p>}
                 </div>
                 <div className="flex items-center gap-2  ml-4">
@@ -221,7 +220,7 @@ const Cart = () => {
               </div>
             ))}
             <div className="flex justify-between items-center mt-4">
-              <h3 className="text-lg font-bold">Total: ${totalPrice.toFixed(2)}</h3>
+              <h3 className="text-lg font-bold">Total: RS {totalPrice.toFixed(2)}</h3>
               <Link href={`/auth/checkout`}>
                 <Button variant="default">Proceed to Checkout</Button>
               </Link>
