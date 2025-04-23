@@ -70,6 +70,9 @@ export async function POST(req: Request) {
       shipping_address_collection: { allowed_countries: ['PK'] },
       billing_address_collection: 'required',
       customer_email: data.customerEmail,
+      phone_number_collection: {
+        enabled: true
+      }
     });
 
     return NextResponse.json({ url: session.url });

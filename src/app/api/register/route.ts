@@ -7,7 +7,7 @@ export async function POST(req: Request) {
   try {
     await connectDB();
     
-    const { username, email, password } = await req.json();
+    const { name, email, password } = await req.json();
     
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -21,9 +21,9 @@ export async function POST(req: Request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Create new user
+    // Create new user with name instead of username
     const user = await User.create({
-      username,
+      name,  // Changed from username to name
       email,
       password: hashedPassword,
     });

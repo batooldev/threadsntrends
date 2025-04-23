@@ -31,3 +31,33 @@ export async function PUT(request: Request, { params }: { params: { id: string }
         );
     }
 }
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+    await connectDB();
+
+    const deletedOrder = await orders.findOneAndDelete({ orderID: id });
+
+    if (!deletedOrder) {
+      return NextResponse.json(
+        { error: 'Order not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { message: 'Order deleted successfully' },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Error deleting order:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete order' },
+      { status: 500 }
+    );
+  }
+}

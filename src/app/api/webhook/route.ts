@@ -68,12 +68,12 @@ export async function POST(req: Request) {
       };
 
       // Map line items to products
-      const products = lineItems.map((item: any) => ({
+      const products = lineItems.map((item: any, index: number) => ({
         productID: item.price?.product || 'unknown',
         name: item.description || 'Unknown Product',
         quantity: item.quantity || 1,
         price: (item.amount_total / 100) / (item.quantity || 1),
-        size: 'Default' // Set a default size if not available
+        size: metadata[`product_${index}_size`] || 'Default' 
       }));
 
       const newOrder = new Order({

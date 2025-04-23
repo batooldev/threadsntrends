@@ -54,11 +54,14 @@ export default function AdminOrdersPage() {
     setSearchTerm(e.target.value);
   };
 
-  const filteredOrders = orders.filter((order: any) => 
-    order.orderID.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.customerEmail.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredOrders = orders.filter((order: any) => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      order.orderID.toLowerCase().includes(searchLower) ||
+      (order.customer?.name || order.customerName || '').toLowerCase().includes(searchLower) ||
+      (order.customer?.email || order.customerEmail || '').toLowerCase().includes(searchLower)
+    );
+  });
 
   const handleEdit = (order: any) => {
     setEditOrderData(order);
