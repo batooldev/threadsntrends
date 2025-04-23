@@ -7,7 +7,7 @@ const AddressSchema = new Schema({
   apartment: String,
   city: { type: String, required: true },
   postalCode: String,
-  phone: { type: Number, required: true },
+  phone: { type: String, required: true }, // Changed from Number to String
 });
 
 const OrderSchema = new mongoose.Schema(
@@ -82,6 +82,10 @@ const OrderSchema = new mongoose.Schema(
       type: String,
       enum: ['card', 'cod'],
       required: true,
+    },
+    stripe: {
+      sessionId: { type: String },
+      paymentIntentId: { type: String }
     }
   },
   { timestamps: true }

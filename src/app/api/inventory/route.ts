@@ -24,20 +24,28 @@ export async function PUT(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { productId, stock, reorderLevel } = body;
+    const { productId, stock } = body;
 
-    const updatedProduct = await Product.findByIdAndUpdate(
-      productId,
-      { stock, reorderLevel },
-      { new: true }
-    );
-
-    if (!updatedProduct) {
+    // Find the current product first
+    const currentProduct = await Product.findById(productId);
+    if (!currentProduct) {
       return NextResponse.json(
         { success: false, message: "Product not found" },
         { status: 404 }
       );
     }
+
+    // If stock is being updated, increment reorderLevel
+    const reorderLevel = currentProduct.reorderLevel + 1;
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productId,
+      { 
+        stock,
+        reorderLevel 
+      },
+      { new: true }
+    );
 
     return NextResponse.json({ success: true, data: updatedProduct });
   } catch (error: any) {

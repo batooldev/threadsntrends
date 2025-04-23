@@ -40,6 +40,11 @@ const ProductSchema = new mongoose.Schema(
       min: 0,
       default: 0,
     },
+    reorderLevel: {
+      type: Number,
+      default: 1, // Default reorder level
+      min: 0,
+    },
     images: [
       {
         type: String,
@@ -59,5 +64,5 @@ const ProductSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.Product || mongoose.model('Product', ProductSchema); 
+export default mongoose.models.Product || mongoose.model('Product', ProductSchema);
 
