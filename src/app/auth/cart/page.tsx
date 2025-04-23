@@ -203,31 +203,50 @@ const Cart = () => {
                   {item.size && <p className="text-gray-400 text-sm">Size: {item.size}</p>}
                 </div>
                 <div className="flex items-center gap-2  ml-4">
-                  <Button variant="outline" size="icon" onClick={() => decreaseQuantity(item._id)}>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={() => decreaseQuantity(item._id)}
+                    style={{ borderColor: 'var(--light_brown)', color: 'var(--light_brown)' }}
+                  >
                     <Minus size={16} />
                   </Button>
                   <span className="w-8 text-center">{item.quantity || 1}</span>
-                  <Button variant="outline" size="icon" onClick={() => increaseQuantity(item._id)}>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={() => increaseQuantity(item._id)}
+                    style={{ borderColor: 'var(--light_brown)', color: 'var(--light_brown)' }}
+                  >
                     <Plus size={16} />
                   </Button>
                 </div>
                 <div className="flex items-center ml-4">
-                <Button variant="destructive" size="icon" onClick={() => removeItem(item._id)}>
-                  <Trash size={16} />
-                </Button>
-                
-              </div>
+                  <Button 
+                    variant="destructive" 
+                    size="icon" 
+                    onClick={() => removeItem(item._id)}
+                    style={{ backgroundColor: 'var(--light_brown)', borderColor: 'var(--light_brown)' }}
+                  >
+                    <Trash size={16} />
+                  </Button>
+                </div>
               </div>
             ))}
             <div className="flex justify-between items-center mt-4">
               <h3 className="text-lg font-bold">Total: RS {totalPrice.toFixed(2)}</h3>
               <Link href={`/auth/checkout`}>
-                <Button variant="default">Proceed to Checkout</Button>
+                <Button 
+                  variant="default" 
+                  style={{ backgroundColor: 'var(--light_brown)', borderColor: 'var(--light_brown)' }}
+                >
+                  Proceed to Checkout
+                </Button>
               </Link>
             </div>
           </div>
         )}
-        <div className="absolute top-2 right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+        <div className="absolute top-2 right-2 bg-light_brown text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
           {cart.length > 0 ? cart.length : 0}
         </div>
       </div>

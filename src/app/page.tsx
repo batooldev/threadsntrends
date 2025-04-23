@@ -18,7 +18,7 @@ export default function AboutUs() {
             perfect for elevating your style with sophistication and charm."
             </p>
             <Link href="/auth">
-            <button className="bg-[#D19E61] hover:bg-[#A67B5B] text-white px-6 py-3 rounded-lg shadow-md mt-4">
+            <button className="bg-light_brown hover:bg-[#A67B5B] text-white px-6 py-3 rounded-lg shadow-md mt-4">
               Shop Now
             </button>
             </Link>
@@ -61,7 +61,7 @@ export default function AboutUs() {
             <div className="w-full h-full bg-cover bg-center transform hover:scale-105 transition-transform duration-300" style={{ backgroundImage: "url('/images/p15.webp')" }}></div>
             </div>
             <h3 className="text-lg font-medium tracking-wide text-gray-800">Women</h3>
-        <Link href={"auth"}>    <button className="underline text-[#D19E61] hover:text-[#A67B5B]">Shop Here</button> </Link>
+        <Link href={"auth"}>    <button className="underline text-light_brown hover:text-[#A67B5B]">Shop Here</button> </Link>
           </div>
              
               {/* second image */}
@@ -70,7 +70,7 @@ export default function AboutUs() {
             <div className="w-full h-full bg-cover bg-center transform hover:scale-105 transition-transform duration-300" style={{ backgroundImage: "url('/images/Men.jfif')" }}></div>
            </div>
             <h3 className="text-lg font-medium tracking-wide text-gray-800">Men</h3>
-        <Link href={"auth"}>   <button className="underline text-[#D19E61] hover:text-[#A67B5B]">Shop Here</button> </Link> 
+        <Link href={"auth"}>   <button className="underline text-light_brown hover:text-[#A67B5B]">Shop Here</button> </Link> 
           </div>
 
            {/* third image */}
@@ -79,7 +79,7 @@ export default function AboutUs() {
             <div className="w-full h-full bg-cover bg-center transform hover:scale-105 transition-transform duration-300" style={{ backgroundImage: "url('/images/event.jfif')" }}></div>
             </div>
             <h3 className="text-lg font-medium tracking-wide text-gray-800">Events</h3>
-         <Link href="/auth">   <button className="underline text-[#D19E61] hover:text-[#A67B5B]">Shop Here</button></Link>
+         <Link href="/auth">   <button className="underline text-light_brown hover:text-[#A67B5B]">Shop Here</button></Link>
           </div>
 
         </div>
@@ -96,7 +96,7 @@ export default function AboutUs() {
               Explore our curated collection every season, and follow us for the latest trends.
             </p>
             <Link href="/auth">
-            <button className="bg-[#D19E61] hover:bg-[#A67B5B] text-white px-6 py-3 mt-4 rounded-lg">
+            <button className="bg-light_brown hover:bg-[#A67B5B] text-white px-6 py-3 mt-4 rounded-lg">
               Shop Now
             </button>
             </Link>

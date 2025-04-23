@@ -436,7 +436,7 @@ export default function Checkout() {
           </CardContent>
         </Card>
 
-        <Button type="submit" className="w-full text-lg py-3" disabled={submitting}>
+        <Button type="submit" className="w-full text-lg py-3 bg-light_brown hover:bg-light_brown/90" disabled={submitting}>
           {submitting ? "Processing..." : "Pay Now"}
         </Button>
       </div>

@@ -225,15 +225,15 @@ const MultiStepForm = () => {
       {renderNumericInput("armhole", "Armhole (cm)")}
       {renderNumericInput("wrist", "Wrist (cm)")}
       <div className="flex justify-between mt-3">
-        <Button onClick={prevStep} className="bg-solid_brown text-white">
+        <Button onClick={prevStep} className="bg-light_brown text-white">
           Back
         </Button>
         <Button
           onClick={nextStep}
           className={`p-2 rounded ${
             isNextEnabled && Object.keys(errors).length === 0
-              ? "bg-solid_brown text-white"
-              : "bg-solid_brown text-gray-700 cursor-not-allowed"
+              ? "bg-light_brown text-white"
+              : "bg-light_brown text-gray-700 cursor-not-allowed"
           }`}
           disabled={!isNextEnabled || Object.keys(errors).length > 0}
         >
@@ -343,8 +343,8 @@ const MultiStepForm = () => {
               onClick={nextStep}
               className={`p-2 rounded ${
                 isNextEnabled
-                  ? "bg-solid_brown text-white"
-                  : "bg-solid_brown text-gray-700 cursor-not-allowed"
+                  ? "bg-light_brown text-white"
+                  : "bg-light_brown text-gray-700 cursor-not-allowed"
               }`}
               disabled={!isNextEnabled}
             >
@@ -365,15 +365,15 @@ const MultiStepForm = () => {
             {renderNumericInput("trouserLength", "Trouser Length (cm)")}
             {renderNumericInput("knee", "Knee (cm)")}
             <div className="flex justify-between mt-3">
-              <Button onClick={prevStep} className="bg-solid_brown text-white">
+              <Button onClick={prevStep} className="bg-light_brown text-white">
                 Back
               </Button>
               <Button
                 onClick={nextStep}
                 className={`p-2 rounded ${
                   isNextEnabled && Object.keys(errors).length === 0
-                    ? "bg-solid_brown text-white"
-                    : "bg-solid_brown text-gray-700 cursor-not-allowed"
+                    ? "bg-light_brown text-white"
+                    : "bg-light_brown text-gray-700 cursor-not-allowed"
                 }`}
                 disabled={!isNextEnabled || Object.keys(errors).length > 0}
               >
@@ -409,10 +409,10 @@ const MultiStepForm = () => {
               <p><strong>Knee:</strong> {formData.knee} cm</p>
             </div>
             <div className="flex justify-between mt-3">
-              <Button onClick={prevStep} className="bg-solid_brown text-white">
+              <Button onClick={prevStep} className="bg-light_brown text-white">
                 Back
               </Button>
-              <Button onClick={handleSubmit} className="bg-solid_brown text-white">
+              <Button onClick={handleSubmit} className="bg-light_brown text-white">
                 Submit
               </Button>
             </div>

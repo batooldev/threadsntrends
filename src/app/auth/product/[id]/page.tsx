@@ -47,13 +47,13 @@ export default function ProductPage(): JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [addingToCart, setAddingToCart] = useState<boolean>(false);
   const [cartMessage, setCartMessage] = useState<string | null>(null);
-  const [selectedSize, setSelectedSize] = useState<string>("XS");
+  const [selectedSize, setSelectedSize] = useState<string>("Unstitched");
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<string>("description");
   const router = useRouter();
 
   // Default sizes with unstitched option
-  const defaultSizes = ["XS", "S", "M", "L", "XL", "Unstitched"];
+  const defaultSizes = ["Unstitched", "XS", "S", "M", "L", "XL"];
 
   useEffect(() => {
     // Make sure we have an ID before fetching
@@ -168,11 +168,21 @@ export default function ProductPage(): JSX.Element {
 
   // Determine which sizes to show
   const getSizesToShow = () => {
+    let sizes: string[] = [];
+    
     // If the product has specified sizes, use those
     if (product?.sizes && product.sizes.length > 0) {
-      return product.sizes;
+      // Remove "Unstitched" if it exists in the array
+      const otherSizes = product.sizes.filter(size => size !== "Unstitched");
+      // Add "Unstitched" at the beginning if it was in the original array
+      if (product.sizes.includes("Unstitched")) {
+        sizes = ["Unstitched", ...otherSizes];
+      } else {
+        sizes = otherSizes;
+      }
+      return sizes;
     }
-    // Otherwise, use default sizes
+    // Otherwise, use default sizes (which already has Unstitched first)
     return defaultSizes;
   };
 
@@ -288,9 +298,9 @@ export default function ProductPage(): JSX.Element {
                       size === "Unstitched" ? "px-4" : "w-10"
                     } h-10 rounded-full flex items-center justify-center ${
                       selectedSize === size 
-                        ? 'bg-gray-900 text-white' 
+                        ? 'bg-light_brown text-white' 
                         : 'bg-white border border-gray-300 text-gray-800'
-                    }`}
+                    } hover:bg-light_brown/90 hover:text-white transition-colors`}
                     onClick={() => setSelectedSize(size)}
                   >
                     {size}
@@ -303,7 +313,7 @@ export default function ProductPage(): JSX.Element {
             <Button 
               onClick={handleAddToCart}
               disabled={addingToCart} 
-              className="w-full h-12 rounded-full bg-black hover:bg-gray-800 text-white"
+              className="w-full h-12 rounded-full bg-[#D19E61] hover:bg-[#b88b54] text-white"
             >
               {addingToCart ? 'ADDING...' : 'ADD TO CART'}
             </Button>
@@ -392,7 +402,7 @@ export default function ProductPage(): JSX.Element {
                   
                   <div className="mt-6">
                     <Link href={`/auth/review/${id}`}>
-                      <Button className="w-full">Write a Review</Button>
+                      <Button className="w-full bg-[#D19E61] hover:bg-[#b88b54]">Write a Review</Button>
                     </Link>
                   </div>
                 </TabsContent>

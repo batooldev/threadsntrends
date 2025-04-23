@@ -365,7 +365,7 @@ const ProductForm = () => {
           className={`w-full py-2 px-4 rounded transition flex items-center justify-center ${
             isSubmitting
               ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700 text-white"
+              : "bg-[#D19E61] hover:bg-[#b88a52] text-white"
           }`}
         >
           {isSubmitting ? (

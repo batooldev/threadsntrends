@@ -188,7 +188,7 @@ const ContactUs = () => {
             type="submit"
             disabled={!isFormFilled}
             className={`w-full py-2 rounded ${
-            isFormFilled ? "bg-[#D19E61] text-white" : "bg-[#D19E61] hover:bg-[#A67B5B] text-gray-700 cursor-not-allowed"
+            isFormFilled ? "bg-light_brown text-white" : "bg-light_brown hover:bg-[#A67B5B] text-gray-700 cursor-not-allowed"
          }`}
         >
         Send Now

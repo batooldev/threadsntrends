@@ -33,7 +33,7 @@ const AboutUs = () => {
           <div className="max-w-3xl">
             <h1 className="text-6xl font-light mb-8 tracking-tight">
             Style Redefined
-              <span className="block font-normal text-[#D19E61]">for Every Occasion</span>
+              <span className="block font-normal text-light_brown">for Every Occasion</span>
             </h1>
             <p className="text-xl text-neutral-600 leading-relaxed">
              Welcome to Threads N Trends, where fashion meets craftsmanship. We specialize in creating elegant, timeless, and bespoke clothing that celebrates individuality.
@@ -49,7 +49,7 @@ const AboutUs = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
             {projects.map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="text-4xl font-light text-[#D19E61] mb-2">{stat.number}</div>
+                <div className="text-4xl font-light text-light_brown mb-2">{stat.number}</div>
                 <div className="text-sm text-neutral-600 uppercase tracking-wide">{stat.label}</div>
               </div>
             ))}
@@ -95,7 +95,7 @@ const AboutUs = () => {
           <div className="grid md:grid-cols-3 gap-12">
             {services.map((service, index) => (
               <div key={index} className="group hover:bg-[#F2E8DF] p-8 rounded-lg transition-all duration-300">
-                <h3 className="text-xl font-medium mb-4 group-hover:text-[#D19E61] transition-colors duration-300">
+                <h3 className="text-xl font-medium mb-4 group-hover:text-light_brown transition-colors duration-300">
                   {service.title}
                 </h3>
                 <p className="text-neutral-600">
@@ -117,7 +117,7 @@ const AboutUs = () => {
              Whether it’s a wedding, a party, or everyday elegance, we’re here to create outfits that make you shine.
           </p>
           <Link href="ContactUs">
-          <button className="bg-[#D19E61] text-white px-8 py-4 rounded-lg hover:bg-[#A67B5B] transition-colors duration-300">
+          <button className="bg-light_brown text-white px-8 py-4 rounded-lg hover:bg-[#A67B5B] transition-colors duration-300">
               Contact Us
           </button>
           </Link>
