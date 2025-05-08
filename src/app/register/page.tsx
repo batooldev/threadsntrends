@@ -118,7 +118,7 @@ export default function RegisterPage() {
           <CardFooter className='flex flex-col gap-2'>
             <Button 
               type="submit" 
-              className="w-full"
+              className="w-full bg-light_brown text-white hover:bg-light_brown/80"
               disabled={loading}
             >
               {loading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
@@ -127,7 +127,7 @@ export default function RegisterPage() {
             <Link href='/login'className="w-full">
             <Button 
               type="submit" 
-              className="w-full"
+              className="w-full bg-light_brown text-white hover:bg-light_brown/80"
               disabled={loading}
             >
               {loading && <Loader className="mr-2 h-4 w-4 animate-spin " />}

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,7 @@ export default function Checkout() {
     billingCity: "",
     billingPostalCode: "",
     billingPhone: "",
+    userId: session?.user?.id,
     paymentMethod: "card",
     emailOffers: false,
   });
@@ -98,8 +99,15 @@ export default function Checkout() {
     return phoneRegex.test(phone);
   };
 
+  console.log("User ID from session:", session?.user?.id);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!session?.user?.id) {
+      alert('Please login to continue');
+      return;
+    }
 
     // Validate phone number before submission
     if (!isValidPhoneNumber(formData.phone)) {
@@ -115,7 +123,7 @@ export default function Checkout() {
     setSubmitting(true);
 
     try {
-      const orderData = {
+      const orderData = { 
         customerEmail: formData.email,
         customerName: `${formData.firstName} ${formData.lastName}`,
         shippingAddress: {
@@ -153,10 +161,13 @@ export default function Checkout() {
           price: item.price,
           size: item.size 
         })),
+        userId: session.user.id,
         totalAmount: cart.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0) + 99,
         shippingCost: 99,
         paymentMethod: formData.paymentMethod,
       };
+
+      console.log("Order Data:", orderData); // Log order data for debugging
 
       if (formData.paymentMethod === "card") {
         const response = await fetch("/api/checkout-session", {
@@ -164,6 +175,7 @@ export default function Checkout() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             items: cart,
+            // userId: session.user.id,
             ...orderData
           }),
         });

@@ -186,6 +186,8 @@ export default function ProductPage(): JSX.Element {
     return defaultSizes;
   };
 
+  const isOutOfStock = !product?.stock || product.stock <= 0;
+
   if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -312,13 +314,23 @@ export default function ProductPage(): JSX.Element {
             {/* Add to Cart Button */}
             <Button 
               onClick={handleAddToCart}
-              disabled={addingToCart} 
-              className="w-full h-12 rounded-full bg-[#D19E61] hover:bg-[#b88b54] text-white"
+              disabled={addingToCart || isOutOfStock} 
+              className={`w-full h-12 rounded-full ${
+                isOutOfStock 
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-[#D19E61] hover:bg-[#b88b54]'
+              } text-white`}
             >
-              {addingToCart ? 'ADDING...' : 'ADD TO CART'}
+              {addingToCart ? 'ADDING...' : isOutOfStock ? 'OUT OF STOCK' : 'ADD TO CART'}
             </Button>
             
-            {cartMessage && (
+            {isOutOfStock && (
+              <p className="mt-2 text-red-500 text-sm text-center">
+                This item is currently out of stock
+              </p>
+            )}
+
+            {cartMessage && !isOutOfStock && (
               <div className="mt-3 text-sm font-medium text-green-600">
                 {cartMessage}
               </div>

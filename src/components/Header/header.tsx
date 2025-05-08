@@ -150,12 +150,8 @@ const Header = () => {
 
   return (
     <div>
-      {/* Tailor button */}
-      <div className="bg-solid_brown flex justify-end">
-        <Link href="/auth/tailor-services">
-          <Button variant="outline">Tailor Service</Button>
-        </Link>
-      </div>
+      {/* Brown background div */}
+      <div className="bg-solid_brown h-10"></div>
 
       <nav className="flex flex-row px-5 py-5 bg-[#fff] shadow-md">
         {/* Navigation links */}
@@ -164,6 +160,7 @@ const Header = () => {
           <Link href="/auth">Product</Link>
           <Link href="/AboutUs">AboutUs</Link>
           <Link href="/ContactUs">ContactUs</Link>
+          <Link href="/auth/tailor-services">Tailor Services</Link>
         </div>
 
         {/* Logo or Branding */}

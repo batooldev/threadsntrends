@@ -4,6 +4,7 @@ import { stripe } from '@/lib/stripe';
 import { headers } from 'next/headers';
 import Order from '@/lib/orders';
 import connectDB from '@/lib/db';
+import Cart from '@/lib/cart'; // Assuming you have a Cart model for clearing the cart
 import { v4 as uuidv4 } from 'uuid'; // For generating unique order IDs
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally
@@ -94,6 +95,13 @@ export async function POST(req: Request) {
       
       await newOrder.save();
       console.log(`💰 Order ${orderId} saved successfully!`);
+
+      // Clear cart after successful order
+      const userId = metadata.userId;
+      if (userId) {
+        await Cart.deleteMany({ userId });
+        console.log(`🛒 Cart cleared for user ${userId}`);
+      }
 
       // After saving the order, return success with order ID
       return NextResponse.json({ 

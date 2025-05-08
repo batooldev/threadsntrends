@@ -52,6 +52,7 @@ export async function POST(req: Request) {
       shippingCost: data.shippingCost.toString(),
       totalAmount: data.totalAmount.toString(),
       paymentMethod: data.paymentMethod,
+      userId: data.userId, // Assuming userId is passed in the request
     };
 
     // Add size information for each product
