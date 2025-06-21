@@ -165,7 +165,7 @@ const Header = () => {
 
         {/* Logo or Branding */}
         <div className="flex-grow text-center justify-center w-8/12">
-          <p>Thread N Trends</p>
+          <p>Threads N Trends</p>
         </div>
 
         {/* Search and Cart Icons and Trackoder icon*/}

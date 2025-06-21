@@ -14,8 +14,8 @@ export default function Footer() {
       {/* Logo and Description */}
       <div>
         <div className="flex items-center space-x-2">
-          <img src="/logo.png" alt="Threads N Trends Studio Logo" className="h-12" />
-          <span className="font-bold text-lg">Threads N Trends Studio</span>
+          {/* <img src="/logo.png" alt="Threads N Trends Studio Logo" className="h-12" /> */}
+          <span className="font-bold text-lg">Threads N Trends</span>
         </div>
         < p className="mt-4 text-sm">
           Discover the perfect blend of style and craftsmanship at Threads N Trends Studio, your ultimate destination for bespoke tailoring and elegant fashion.</p>
