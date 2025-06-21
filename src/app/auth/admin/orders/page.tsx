@@ -189,8 +189,7 @@ export default function AdminOrdersPage() {
                         <TableCell>
                           <div>{order.customerName}</div>
                           <div className="text-sm text-gray-500">{order.customerEmail}</div>
-                        </TableCell>
-                        <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
+                        </TableCell>                        <TableCell>Rs. {order.totalAmount.toFixed(2)}</TableCell>
                         <TableCell>
                           <Badge className={getStatusBadgeColor(order.status)}>
                             {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
@@ -290,9 +289,8 @@ export default function AdminOrdersPage() {
                   <h3 className="text-sm font-medium text-gray-500">Created At</h3>
                   <p className="mt-1">{new Date(viewOrderData.createdAt).toLocaleString()}</p>
                 </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Total Amount</h3>
-                  <p className="mt-1 font-semibold">${viewOrderData.totalAmount.toFixed(2)}</p>
+                <div>                  <h3 className="text-sm font-medium text-gray-500">Total Amount</h3>
+                  <p className="mt-1 font-semibold">Rs. {viewOrderData.totalAmount.toFixed(2)}</p>
                 </div>
               </div>
 
@@ -309,17 +307,16 @@ export default function AdminOrdersPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {viewOrderData.products.map((product: any, index: number) => (
+                    {viewOrderData?.products?.map((product: any, index: number) => (
                       <TableRow key={index}>
                         <TableCell>
                           <div className="font-medium">{product.name}</div>
                           <div className="text-xs text-gray-500">ID: {product.productID}</div>
-                        </TableCell>
-                        <TableCell>{product.quantity}</TableCell>
-                        <TableCell>${product.price.toFixed(2)}</TableCell>
+                        </TableCell>                        <TableCell>{product.quantity}</TableCell>
+                        <TableCell>Rs. {product.price.toFixed(2)}</TableCell>
                         <TableCell>{product.size || 'N/A'}</TableCell> 
                         <TableCell className="text-right">
-                          ${(product.quantity * product.price).toFixed(2)}
+                          Rs. {(product.quantity * product.price).toFixed(2)}
                         </TableCell>
                       </TableRow>
                     ))}
